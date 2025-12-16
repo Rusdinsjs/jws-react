@@ -8,6 +8,8 @@ interface AudioContextType {
     currentAudioSrc: string | null;
     audioSettings: PrayerAudioSettings;
     updateAudioSettings: (settings: PrayerAudioSettings) => void;
+    testAudio: (state: AudioState, prayerName: string, src?: string) => void;
+    stopTest: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -35,11 +37,39 @@ export function AudioProvider({ children, initialSettings, onSettingsChange }: A
 
     // Keep settings in check
     const [settings, setSettings] = useState<PrayerAudioSettings>(initialSettings);
+    const [isTestMode, setIsTestMode] = useState(false);
 
     // Sync individual setting updates
     const updateAudioSettings = (newSettings: PrayerAudioSettings) => {
         setSettings(newSettings);
         onSettingsChange(newSettings);
+    };
+
+    // Test audio state manually
+    const testAudio = (state: AudioState, prayerName: string, src?: string) => {
+        console.log(`[Audio] Test mode: ${state} (${prayerName})`);
+        setIsTestMode(true);
+        setAudioState(state);
+        setCurrentPrayerName(prayerName);
+
+        // Play audio if source provided
+        if (src && audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.src = src;
+            audioRef.current.play().catch(e => console.error("Audio playback error:", e));
+        }
+    };
+
+    // Stop test
+    const stopTest = () => {
+        console.log(`[Audio] Stopping test mode`);
+        setIsTestMode(false);
+        setAudioState("Idle");
+        setCurrentPrayerName(null);
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
     };
 
     // Initialize audio element
@@ -55,7 +85,7 @@ export function AudioProvider({ children, initialSettings, onSettingsChange }: A
 
     // Scheduler Logic
     useEffect(() => {
-        if (!audioRef.current) return;
+        if (!audioRef.current || isTestMode) return; // Skip scheduler in test mode
 
         const checkSchedule = () => {
             const now = new Date();
@@ -128,10 +158,10 @@ export function AudioProvider({ children, initialSettings, onSettingsChange }: A
         checkSchedule(); // check immediately
 
         return () => clearInterval(interval);
-    }, [prayerTimes, settings, audioState, currentPrayerName]);
+    }, [prayerTimes, settings, audioState, currentPrayerName, isTestMode]);
 
     return (
-        <AudioContext.Provider value={{ audioState, currentPrayerName, currentAudioSrc, audioSettings: settings, updateAudioSettings }}>
+        <AudioContext.Provider value={{ audioState, currentPrayerName, currentAudioSrc, audioSettings: settings, updateAudioSettings, testAudio, stopTest }}>
             {children}
         </AudioContext.Provider>
     );

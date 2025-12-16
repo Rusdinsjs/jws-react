@@ -5,8 +5,11 @@ import { Slide, TextSlide, MediaSlide } from "../../types/slide";
 import { ThemeName, THEME_LIST, getTheme } from "../../types/theme";
 import { FontThemeName, FONT_LIST } from "../../types/fonts";
 import { PrayerAudioSettings, DEFAULT_AUDIO_CONFIG } from "../../types/audio";
+import { LocationSettings, FullscreenSettings } from "../../services/settingsStore";
+import { CALCULATION_METHODS } from "../../context/PrayerTimesContext";
+import { useAudio } from "../../context/AudioContext";
 
-type TabName = "tampilan" | "masjid" | "jadwal" | "slideshow" | "layout" | "audio";
+type TabName = "tampilan" | "masjid" | "jadwal" | "slideshow" | "audio" | "fullscreen" | "layout";
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -27,6 +30,10 @@ interface SettingsModalProps {
     onAudioSettingsChange: (settings: PrayerAudioSettings) => void;
     prayerTimeOffsets: Record<string, number>;
     onOffsetsChange: (offsets: Record<string, number>) => void;
+    locationSettings: LocationSettings;
+    onLocationChange: (settings: LocationSettings) => void;
+    fullscreenSettings: FullscreenSettings;
+    onFullscreenSettingsChange: (settings: FullscreenSettings) => void;
 }
 
 const TABS: { id: TabName; label: string; icon: string }[] = [
@@ -35,8 +42,135 @@ const TABS: { id: TabName; label: string; icon: string }[] = [
     { id: "jadwal", label: "Jadwal", icon: "🕰️" },
     { id: "slideshow", label: "Slideshow", icon: "📺" },
     { id: "audio", label: "Audio", icon: "🔊" },
+    { id: "fullscreen", label: "Fullscreen", icon: "🖥️" },
     { id: "layout", label: "Layout", icon: "📐" },
 ];
+
+// Test buttons component for Tartil/Tarhim/Adzan testing
+interface TestAudioButtonsProps {
+    onFullscreenChange: (mode: FullScreenMode) => void;
+    fullscreenMode: FullScreenMode;
+    onClose: () => void; // Close modal when testing fullscreen
+}
+
+function TestAudioButtons({ onFullscreenChange, fullscreenMode, onClose }: TestAudioButtonsProps) {
+    const { audioState, testAudio, stopTest } = useAudio();
+    const [testPrayer, setTestPrayer] = useState("Subuh");
+
+    const prayers = ["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"];
+
+    // All fullscreen modes for testing (not Adzan - separate handling)
+    const fullscreenModes: { mode: FullScreenMode; label: string; icon: string; color: string }[] = [
+        { mode: "IqamahWait", label: "Iqamah", icon: "⏳", color: "purple" },
+        { mode: "Sholat", label: "Sholat", icon: "🙏", color: "green" },
+        { mode: "PreKhutbah", label: "PreKhutbah", icon: "📜", color: "amber" },
+        { mode: "Khutbah", label: "Khutbah", icon: "🎤", color: "orange" },
+        { mode: "ScreenSaver", label: "ScreenSaver", icon: "🌙", color: "slate" },
+    ];
+
+    // Adzan: trigger audio AND fullscreen
+    const handleTestAdzan = () => {
+        console.log(`[Test] Triggering Adzan with audio`);
+        testAudio("Adzan", testPrayer); // Play audio
+        onFullscreenChange("Adzan"); // Navigate to fullscreen
+        onClose(); // Close modal
+    };
+
+    const handleTestFullscreen = (mode: FullScreenMode) => {
+        console.log(`[Test] Navigating to fullscreen: ${mode}`);
+        onFullscreenChange(mode);
+        onClose(); // Close modal to show fullscreen
+    };
+
+    const handleStopTest = () => {
+        stopTest();
+        onFullscreenChange("None");
+    };
+
+    const isFullscreenActive = fullscreenMode !== "None";
+
+    return (
+        <div className="space-y-4">
+            {/* Audio Test Section */}
+            <div className="space-y-2">
+                <p className="text-xs text-slate-500 uppercase tracking-wide">Audio Test (Info Panel)</p>
+                <select
+                    value={testPrayer}
+                    onChange={(e) => setTestPrayer(e.target.value)}
+                    className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2 text-sm"
+                >
+                    {prayers.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                    ))}
+                </select>
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => testAudio("Tartil", testPrayer)}
+                        className={`p-2 rounded-lg transition-all text-sm ${audioState === "Tartil"
+                            ? "bg-emerald-500 text-white"
+                            : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/40"}`}
+                    >
+                        🎵 Tartil
+                    </button>
+                    <button
+                        onClick={() => testAudio("Tarhim", testPrayer)}
+                        className={`p-2 rounded-lg transition-all text-sm ${audioState === "Tarhim"
+                            ? "bg-amber-500 text-white"
+                            : "bg-amber-500/20 text-amber-400 hover:bg-amber-500/40"}`}
+                    >
+                        🔔 Tarhim
+                    </button>
+                </div>
+            </div>
+
+            {/* Fullscreen Test Section */}
+            <div className="space-y-2">
+                <p className="text-xs text-slate-500 uppercase tracking-wide">Fullscreen Test</p>
+
+                {/* Adzan with Audio */}
+                <button
+                    onClick={handleTestAdzan}
+                    className={`w-full p-2 rounded-lg transition-all text-sm ${fullscreenMode === "Adzan"
+                        ? "bg-blue-500 text-white"
+                        : "bg-blue-500/20 text-blue-400 hover:bg-blue-500/40"}`}
+                >
+                    📢 Adzan (dengan Audio)
+                </button>
+
+                {/* Other fullscreen modes */}
+                <div className="grid grid-cols-3 gap-2">
+                    {fullscreenModes.map(({ mode, label, icon, color }) => (
+                        <button
+                            key={mode}
+                            onClick={() => handleTestFullscreen(mode)}
+                            className={`p-2 rounded-lg transition-all text-xs ${fullscreenMode === mode
+                                ? `bg-${color}-500 text-white`
+                                : `bg-${color}-500/20 text-${color}-400 hover:bg-${color}-500/40`}`}
+                        >
+                            {icon} {label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* Stop button */}
+            {(audioState !== "Idle" || isFullscreenActive) && (
+                <button
+                    onClick={handleStopTest}
+                    className="w-full p-2 bg-red-500/20 text-red-400 hover:bg-red-500/40 rounded-lg transition-all text-sm"
+                >
+                    ⏹️ Stop All Tests
+                </button>
+            )}
+
+            {/* Status indicator */}
+            <div className="text-center text-xs text-slate-400">
+                Audio: <span className={audioState === "Idle" ? "text-slate-500" : "text-green-400"}>{audioState}</span>
+                {isFullscreenActive && <span className="ml-2 text-blue-400">| Screen: {fullscreenMode}</span>}
+            </div>
+        </div>
+    );
+}
 
 function SettingsModal({
     isOpen,
@@ -56,7 +190,11 @@ function SettingsModal({
     audioSettings,
     onAudioSettingsChange,
     prayerTimeOffsets,
-    onOffsetsChange
+    onOffsetsChange,
+    locationSettings,
+    onLocationChange,
+    fullscreenSettings,
+    onFullscreenSettingsChange
 }: SettingsModalProps) {
     const [activeTab, setActiveTab] = useState<TabName>("tampilan");
 
@@ -298,13 +436,71 @@ function SettingsModal({
                     {/* Tab: Jadwal */}
                     {activeTab === "jadwal" && (
                         <div className="space-y-6">
+                            {/* Location Settings */}
+                            <div>
+                                <h3 className="text-2xl font-bold text-white mb-2">Koordinat Lokasi</h3>
+                                <p className="text-slate-400 text-sm mb-4">Masukkan koordinat untuk perhitungan waktu sholat yang akurat</p>
+
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-slate-300">Latitude</label>
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            value={locationSettings.latitude}
+                                            onChange={(e) => onLocationChange({
+                                                ...locationSettings,
+                                                latitude: parseFloat(e.target.value) || 0
+                                            })}
+                                            className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                            placeholder="-6.2088"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-slate-300">Longitude</label>
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            value={locationSettings.longitude}
+                                            onChange={(e) => onLocationChange({
+                                                ...locationSettings,
+                                                longitude: parseFloat(e.target.value) || 0
+                                            })}
+                                            className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                            placeholder="106.8456"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm text-slate-300">Metode Perhitungan</label>
+                                    <select
+                                        value={locationSettings.calculationMethod}
+                                        onChange={(e) => onLocationChange({
+                                            ...locationSettings,
+                                            calculationMethod: e.target.value
+                                        })}
+                                        className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                    >
+                                        {CALCULATION_METHODS.map((method) => (
+                                            <option key={method.id} value={method.id}>
+                                                {method.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <hr className="border-white/10" />
+
+                            {/* Offset Settings */}
                             <div>
                                 <h3 className="text-2xl font-bold text-white mb-2">Koreksi Jadwal Sholat</h3>
                                 <p className="text-slate-400 text-sm mb-6">Sesuaikan waktu sholat jika ada selisih (+/- menit)</p>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
-                                {["Subuh", "Syuruq", "Dzuhur", "Ashar", "Maghrib", "Isya"].map((prayer) => (
+                                {["Imsak", "Subuh", "Syuruq", "Dhuha", "Dzuhur", "Ashar", "Maghrib", "Isya"].map((prayer) => (
                                     <div key={prayer} className="flex items-center justify-between bg-slate-800/50 p-4 rounded-xl border border-white/5">
                                         <span className="text-lg font-medium text-white">{prayer}</span>
                                         <div className="flex items-center gap-4">
@@ -315,7 +511,7 @@ function SettingsModal({
                                                 -
                                             </button>
                                             <span className={`w-12 text-center font-mono font-bold text-xl ${(prayerTimeOffsets[prayer] || 0) === 0 ? "text-slate-400" :
-                                                    (prayerTimeOffsets[prayer] || 0) > 0 ? "text-green-400" : "text-red-400"
+                                                (prayerTimeOffsets[prayer] || 0) > 0 ? "text-green-400" : "text-red-400"
                                                 }`}>
                                                 {(prayerTimeOffsets[prayer] || 0) > 0 ? "+" : ""}
                                                 {prayerTimeOffsets[prayer] || 0}
@@ -610,6 +806,188 @@ function SettingsModal({
                         </div>
                     )}
 
+                    {/* Tab: Fullscreen */}
+                    {activeTab === "fullscreen" && (
+                        <div className="space-y-6">
+                            <div>
+                                <h3 className="text-2xl font-bold text-white mb-2">Pengaturan Fullscreen</h3>
+                                <p className="text-slate-400 text-sm mb-6">Atur durasi tampilan layar penuh untuk setiap waktu sholat</p>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* Per-Prayer Duration Settings */}
+                                {(["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"] as const).map((prayer) => {
+                                    const prayerSettings = fullscreenSettings[prayer] || { adzanDuration: 300, iqamahWaitDuration: 600, sholatDuration: 900 };
+                                    const updatePrayerSetting = (field: string, value: number) => {
+                                        onFullscreenSettingsChange({
+                                            ...fullscreenSettings,
+                                            [prayer]: { ...prayerSettings, [field]: value }
+                                        });
+                                    };
+
+                                    return (
+                                        <div key={prayer} className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+                                            <h4 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                                                🕌 {prayer}
+                                            </h4>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                {/* Adzan */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-slate-400">Adzan</label>
+                                                    <div className="flex items-center gap-1">
+                                                        <input
+                                                            type="number"
+                                                            value={Math.floor(prayerSettings.adzanDuration / 60)}
+                                                            onChange={(e) => updatePrayerSetting('adzanDuration', Number(e.target.value) * 60)}
+                                                            className="w-16 bg-slate-700 border border-slate-600 text-white rounded px-2 py-1 text-center text-sm"
+                                                        />
+                                                        <span className="text-slate-500 text-xs">mnt</span>
+                                                    </div>
+                                                </div>
+                                                {/* Iqamah */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-slate-400">Iqamah</label>
+                                                    <div className="flex items-center gap-1">
+                                                        <input
+                                                            type="number"
+                                                            value={Math.floor(prayerSettings.iqamahWaitDuration / 60)}
+                                                            onChange={(e) => updatePrayerSetting('iqamahWaitDuration', Number(e.target.value) * 60)}
+                                                            className="w-16 bg-slate-700 border border-slate-600 text-white rounded px-2 py-1 text-center text-sm"
+                                                        />
+                                                        <span className="text-slate-500 text-xs">mnt</span>
+                                                    </div>
+                                                </div>
+                                                {/* Sholat */}
+                                                <div className="space-y-1">
+                                                    <label className="text-xs text-slate-400">Sholat</label>
+                                                    <div className="flex items-center gap-1">
+                                                        <input
+                                                            type="number"
+                                                            value={Math.floor(prayerSettings.sholatDuration / 60)}
+                                                            onChange={(e) => updatePrayerSetting('sholatDuration', Number(e.target.value) * 60)}
+                                                            className="w-16 bg-slate-700 border border-slate-600 text-white rounded px-2 py-1 text-center text-sm"
+                                                        />
+                                                        <span className="text-slate-500 text-xs">mnt</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                <hr className="border-white/10 my-2" />
+
+                                {/* Friday Settings */}
+                                <div className="bg-amber-900/20 p-4 rounded-xl border border-amber-500/20">
+                                    <h4 className="text-lg font-medium text-amber-400 mb-4">🕌 Pengaturan Jum'at (Dzuhur)</h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-sm text-slate-300">Sebelum Khutbah</label>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={Math.floor(fullscreenSettings.preKhutbahDuration / 60)}
+                                                    onChange={(e) => onFullscreenSettingsChange({
+                                                        ...fullscreenSettings,
+                                                        preKhutbahDuration: Number(e.target.value) * 60
+                                                    })}
+                                                    className="w-20 bg-slate-700 border border-slate-600 text-white rounded px-3 py-2 text-center"
+                                                />
+                                                <span className="text-slate-400 text-sm">menit</span>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-sm text-slate-300">Durasi Khutbah</label>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    value={Math.floor(fullscreenSettings.khutbahDuration / 60)}
+                                                    onChange={(e) => onFullscreenSettingsChange({
+                                                        ...fullscreenSettings,
+                                                        khutbahDuration: Number(e.target.value) * 60
+                                                    })}
+                                                    className="w-20 bg-slate-700 border border-slate-600 text-white rounded px-3 py-2 text-center"
+                                                />
+                                                <span className="text-slate-400 text-sm">menit</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr className="border-white/10 my-2" />
+
+                                {/* ScreenSaver Settings */}
+                                <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+                                    <h4 className="text-lg font-medium text-white mb-4">🌙 Screen Saver</h4>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-slate-300 text-sm">Mulai:</label>
+                                            <input
+                                                type="time"
+                                                value={fullscreenSettings.screenSaverStart}
+                                                onChange={(e) => onFullscreenSettingsChange({
+                                                    ...fullscreenSettings,
+                                                    screenSaverStart: e.target.value
+                                                })}
+                                                className="bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                            />
+                                        </div>
+                                        <span className="text-slate-400">-</span>
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-slate-300 text-sm">Selesai:</label>
+                                            <input
+                                                type="time"
+                                                value={fullscreenSettings.screenSaverEnd}
+                                                onChange={(e) => onFullscreenSettingsChange({
+                                                    ...fullscreenSettings,
+                                                    screenSaverEnd: e.target.value
+                                                })}
+                                                className="bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr className="border-white/10 my-2" />
+
+                                {/* Tartil/Tarhim Media */}
+                                <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+                                    <h4 className="text-lg font-medium text-white mb-4">🎵 Media Tartil & Tarhim</h4>
+                                    <p className="text-sm text-slate-400 mb-4">URL gambar/video untuk ditampilkan saat Tartil/Tarhim aktif</p>
+
+                                    <div className="space-y-3">
+                                        <div className="space-y-1">
+                                            <label className="text-sm text-emerald-400">Tartil Media URL</label>
+                                            <input
+                                                type="text"
+                                                value={fullscreenSettings.tartilMediaUrl}
+                                                onChange={(e) => onFullscreenSettingsChange({
+                                                    ...fullscreenSettings,
+                                                    tartilMediaUrl: e.target.value
+                                                })}
+                                                placeholder="https://example.com/tartil-video.mp4"
+                                                className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-sm text-amber-400">Tarhim Media URL</label>
+                                            <input
+                                                type="text"
+                                                value={fullscreenSettings.tarhimMediaUrl}
+                                                onChange={(e) => onFullscreenSettingsChange({
+                                                    ...fullscreenSettings,
+                                                    tarhimMediaUrl: e.target.value
+                                                })}
+                                                placeholder="https://example.com/tarhim-video.mp4"
+                                                className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Tab: Layout */}
                     {activeTab === "layout" && (
                         <div className="space-y-6">
@@ -659,6 +1037,12 @@ function SettingsModal({
                                         <option value="PreKhutbah" className="bg-slate-800">Persiapan Khutbah</option>
                                         <option value="Khutbah" className="bg-slate-800">Sedang Khutbah</option>
                                     </select>
+                                </div>
+
+                                {/* Test Audio Section */}
+                                <div className="space-y-3 pt-4 border-t border-white/10">
+                                    <label className="block text-sm font-medium text-slate-300">🧪 Test Audio & Display</label>
+                                    <TestAudioButtons onFullscreenChange={onFullscreenChange} fullscreenMode={fullscreenMode} onClose={onClose} />
                                 </div>
                             </div>
                         </div>

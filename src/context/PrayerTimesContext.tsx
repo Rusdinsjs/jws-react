@@ -24,22 +24,63 @@ export function usePrayerTimes() {
 }
 
 // Default to Jakarta coordinates if not provided
-const DEFAULT_COORDS = new Coordinates(-6.2088, 106.8456);
+const DEFAULT_COORDS = { latitude: -6.2088, longitude: 106.8456 };
+
+// Available calculation methods
+export const CALCULATION_METHODS = [
+    { id: "Singapore", label: "Singapore / Malaysia / Brunei" },
+    { id: "MuslimWorldLeague", label: "Muslim World League" },
+    { id: "Egyptian", label: "Egyptian General Authority" },
+    { id: "Karachi", label: "University of Islamic Sciences, Karachi" },
+    { id: "UmmAlQura", label: "Umm al-Qura University, Makkah" },
+    { id: "Dubai", label: "Dubai" },
+    { id: "MoonsightingCommittee", label: "Moonsighting Committee" },
+    { id: "NorthAmerica", label: "ISNA (North America)" },
+    { id: "Kuwait", label: "Kuwait" },
+    { id: "Qatar", label: "Qatar" },
+    { id: "Tehran", label: "Tehran" },
+    { id: "Turkey", label: "Turkey" },
+];
 
 interface PrayerTimesProviderProps {
     children: React.ReactNode;
     offsets: Record<string, number>; // { Subuh: 2, Maghrib: -1 }
+    latitude?: number;
+    longitude?: number;
+    calculationMethod?: string;
 }
 
-export function PrayerTimesProvider({ children, offsets = {} }: PrayerTimesProviderProps) {
+export function PrayerTimesProvider({
+    children,
+    offsets = {},
+    latitude = DEFAULT_COORDS.latitude,
+    longitude = DEFAULT_COORDS.longitude,
+    calculationMethod = "Singapore"
+}: PrayerTimesProviderProps) {
     const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
     const [nextPrayerIndex, setNextPrayerIndex] = useState<number>(-1);
 
     useEffect(() => {
         const updatePrayerTimes = () => {
             const now = new Date();
-            const coords = DEFAULT_COORDS;
-            const params = CalculationMethod.Singapore();
+            const coords = new Coordinates(latitude, longitude);
+
+            // Get calculation method params
+            let params;
+            switch (calculationMethod) {
+                case "MuslimWorldLeague": params = CalculationMethod.MuslimWorldLeague(); break;
+                case "Egyptian": params = CalculationMethod.Egyptian(); break;
+                case "Karachi": params = CalculationMethod.Karachi(); break;
+                case "UmmAlQura": params = CalculationMethod.UmmAlQura(); break;
+                case "Dubai": params = CalculationMethod.Dubai(); break;
+                case "MoonsightingCommittee": params = CalculationMethod.MoonsightingCommittee(); break;
+                case "NorthAmerica": params = CalculationMethod.NorthAmerica(); break;
+                case "Kuwait": params = CalculationMethod.Kuwait(); break;
+                case "Qatar": params = CalculationMethod.Qatar(); break;
+                case "Tehran": params = CalculationMethod.Tehran(); break;
+                case "Turkey": params = CalculationMethod.Turkey(); break;
+                default: params = CalculationMethod.Singapore(); break;
+            }
 
             // Calculate for today
             const timesToday = new PrayerTimes(coords, now, params);
@@ -50,9 +91,23 @@ export function PrayerTimesProvider({ children, offsets = {} }: PrayerTimesProvi
                 return new Date(baseTime.getTime() + offsetMinutes * 60000);
             };
 
+            // Helper to calculate Imsak (10 mins before Subuh)
+            const getImsakTime = (fajrTime: Date) => {
+                const imsakBase = new Date(fajrTime.getTime() - (10 * 60000));
+                return getOffsetTime(imsakBase, 'Imsak');
+            };
+
+            // Helper to calculate Dhuha (15 mins after Syuruq)
+            const getDhuhaTime = (sunriseTime: Date) => {
+                const dhuhaBase = new Date(sunriseTime.getTime() + (15 * 60000));
+                return getOffsetTime(dhuhaBase, 'Dhuha');
+            };
+
             let list = [
+                { name: 'Imsak', time: getImsakTime(timesToday.fajr) },
                 { name: 'Subuh', time: getOffsetTime(timesToday.fajr, 'Subuh') },
                 { name: 'Syuruq', time: getOffsetTime(timesToday.sunrise, 'Syuruq') },
+                { name: 'Dhuha', time: getDhuhaTime(timesToday.sunrise) },
                 { name: 'Dzuhur', time: getOffsetTime(timesToday.dhuhr, 'Dzuhur') },
                 { name: 'Ashar', time: getOffsetTime(timesToday.asr, 'Ashar') },
                 { name: 'Maghrib', time: getOffsetTime(timesToday.maghrib, 'Maghrib') },
@@ -83,8 +138,10 @@ export function PrayerTimesProvider({ children, offsets = {} }: PrayerTimesProvi
 
                 // Update full list for tomorrow
                 list = [
+                    { name: 'Imsak', time: getImsakTime(timesTomorrow.fajr) },
                     { name: 'Subuh', time: getOffsetTime(timesTomorrow.fajr, 'Subuh') },
                     { name: 'Syuruq', time: getOffsetTime(timesTomorrow.sunrise, 'Syuruq') },
+                    { name: 'Dhuha', time: getDhuhaTime(timesTomorrow.sunrise) },
                     { name: 'Dzuhur', time: getOffsetTime(timesTomorrow.dhuhr, 'Dzuhur') },
                     { name: 'Ashar', time: getOffsetTime(timesTomorrow.asr, 'Ashar') },
                     { name: 'Maghrib', time: getOffsetTime(timesTomorrow.maghrib, 'Maghrib') },
@@ -106,7 +163,7 @@ export function PrayerTimesProvider({ children, offsets = {} }: PrayerTimesProvi
         const interval = setInterval(updatePrayerTimes, 60000); // Re-check every minute
 
         return () => clearInterval(interval);
-    }, [offsets]); // Re-run when offsets change
+    }, [offsets, latitude, longitude, calculationMethod]); // Re-run when settings change
 
     return (
         <PrayerTimesContext.Provider value={{ prayerTimes, nextPrayerIndex }}>

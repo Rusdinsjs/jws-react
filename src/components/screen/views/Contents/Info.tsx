@@ -43,32 +43,79 @@ function Info({ className = "" }: ViewProps) {
     }, [contentMode]);
 
 
-    // Override content if Audio is playing (Tartil/Tarhim)
+    // Override content if Audio is playing (Tartil/Tarhim/Adzan)
     if (audioState !== "Idle" && currentPrayerName) {
-        return (
-            <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex flex-col items-center justify-center h-full w-full ${className}`}>
-                <div className="flex flex-col items-center animate-pulse">
-                    <p className="text-teal-400 text-[1.5rem] font-bold tracking-widest uppercase mb-2">
-                        {audioState === "Tartil" ? "Sedang Berlangsung" :
-                            audioState === "Adzan" ? "Waktu Sholat Telah Tiba" : "Menuju Waktu Sholat"}
-                    </p>
-                    <h2 className="text-5xl text-white font-bold text-center mb-2 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
-                        {audioState === "Tartil" ? "TARTIL" :
-                            audioState === "Adzan" ? "ADZAN" : "TARHIM"}
-                    </h2>
-                    <p className="text-3xl text-slate-200 font-light text-center">
-                        {currentPrayerName}
-                    </p>
+        const isTartil = audioState === "Tartil";
+        const isTarhim = audioState === "Tarhim";
 
-                    {/* Audio Wave Animation Placeholder */}
-                    <div className="flex gap-1 mt-6 h-8 items-end">
-                        {[...Array(5)].map((_, i) => (
-                            <div key={i} className="w-2 bg-teal-500 rounded-full animate-bounce"
-                                style={{ animationDelay: `${i * 0.1}s`, height: '100%', animationDuration: '0.8s' }}
+        // Color schemes for different states
+        const colorScheme = isTartil
+            ? { primary: "from-emerald-500 to-teal-600", text: "text-emerald-400", bg: "bg-emerald-500", glow: "rgba(16, 185, 129, 0.5)" }
+            : isTarhim
+                ? { primary: "from-amber-500 to-orange-600", text: "text-amber-400", bg: "bg-amber-500", glow: "rgba(245, 158, 11, 0.5)" }
+                : { primary: "from-blue-500 to-indigo-600", text: "text-blue-400", bg: "bg-blue-500", glow: "rgba(59, 130, 246, 0.5)" };
+
+        return (
+            <div className={`bg-gradient-to-br ${colorScheme.primary} p-6 shadow-2xl flex flex-col items-center justify-center h-full w-full relative overflow-hidden ${className}`}>
+                {/* Background animated circles */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute -top-20 -left-20 w-40 h-40 bg-white/10 rounded-full animate-pulse" />
+                    <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                    <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-white/5 rounded-full animate-bounce" style={{ animationDuration: '3s' }} />
+                </div>
+
+                <div className="flex flex-col items-center z-10">
+                    {/* Status label */}
+                    <div className="flex items-center gap-2 mb-3">
+                        <span className="w-2 h-2 bg-white rounded-full animate-ping" />
+                        <p className="text-white/80 text-lg font-medium tracking-widest uppercase">
+                            {isTartil ? "Sedang Berlangsung" : isTarhim ? "Menuju Waktu Sholat" : "Waktu Sholat Tiba"}
+                        </p>
+                    </div>
+
+                    {/* Main Title */}
+                    <h2 className="text-6xl text-white font-black text-center mb-2 tracking-wider"
+                        style={{ textShadow: `0 0 30px ${colorScheme.glow}, 0 0 60px ${colorScheme.glow}` }}>
+                        {isTartil ? "TARTIL" : isTarhim ? "TARHIM" : "ADZAN"}
+                    </h2>
+
+                    {/* Prayer Name */}
+                    <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full mb-4">
+                        <p className="text-2xl text-white font-bold text-center">
+                            {currentPrayerName}
+                        </p>
+                    </div>
+
+                    {/* Audio Wave Animation */}
+                    <div className="flex gap-1.5 h-12 items-end mt-2">
+                        {[...Array(9)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="w-2 bg-white/80 rounded-full"
+                                style={{
+                                    animation: 'audioWave 0.8s ease-in-out infinite',
+                                    animationDelay: `${i * 0.1}s`,
+                                    height: `${20 + Math.sin(i * 0.5) * 20}px`
+                                }}
                             />
                         ))}
                     </div>
+
+                    {/* Subtitle */}
+                    <p className="text-white/60 text-sm mt-4 tracking-wide">
+                        {isTartil ? "Persiapkan diri untuk beribadah" :
+                            isTarhim ? "Waktu sholat akan segera tiba" :
+                                "Hayya 'alash Sholah"}
+                    </p>
                 </div>
+
+                {/* CSS Animation for audio wave */}
+                <style>{`
+                    @keyframes audioWave {
+                        0%, 100% { transform: scaleY(0.3); }
+                        50% { transform: scaleY(1); }
+                    }
+                `}</style>
             </div>
         );
     }
