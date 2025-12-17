@@ -7,7 +7,7 @@ interface FullscreenSchedulerContextType {
     currentMode: FullScreenMode;
     currentPrayerName: string | null;
     timeRemaining: number; // seconds
-    manualOverride: (mode: FullScreenMode) => void;
+    manualOverride: (mode: FullScreenMode, prayerName?: string) => void;
 }
 
 const FullscreenSchedulerContext = createContext<FullscreenSchedulerContextType | undefined>(undefined);
@@ -76,17 +76,7 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
         setTimeRemaining(duration);
     }, []);
 
-    // Manual override
-    const manualOverride = useCallback((mode: FullScreenMode) => {
-        if (mode === "None") {
-            setState({ mode: "None", prayerName: null, startTime: null, duration: 0 });
-            setTimeRemaining(0);
-        } else {
-            transitionTo(mode, null, 0); // Manual mode with no auto-timeout
-        }
-    }, [transitionTo]);
-
-    // Helper to get prayer durations
+    // Helper to get prayer durations (moved before manualOverride)
     const getPrayerDurations = useCallback((prayerName: string): PrayerDurations => {
         const durations = settings[prayerName as keyof FullscreenSettings];
         if (durations && typeof durations === 'object' && 'adzanDuration' in durations) {
@@ -95,6 +85,44 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
         // Fallback default
         return { adzanDuration: 300, iqamahWaitDuration: 600, sholatDuration: 900 };
     }, [settings]);
+
+    // Manual override with default durations
+    const manualOverride = useCallback((mode: FullScreenMode, prayerName?: string) => {
+        if (mode === "None") {
+            setState({ mode: "None", prayerName: null, startTime: null, duration: 0 });
+            setTimeRemaining(0);
+        } else {
+            // Use a default prayer name for testing if not provided
+            const testPrayerName = prayerName || "Dzuhur";
+            const durations = getPrayerDurations(testPrayerName);
+
+            let duration = 0;
+            switch (mode) {
+                case "Adzan":
+                    duration = durations.adzanDuration;
+                    break;
+                case "IqamahWait":
+                    duration = durations.iqamahWaitDuration;
+                    break;
+                case "Sholat":
+                    duration = durations.sholatDuration;
+                    break;
+                case "PreKhutbah":
+                    duration = settings.preKhutbahDuration;
+                    break;
+                case "Khutbah":
+                    duration = settings.khutbahDuration;
+                    break;
+                case "ScreenSaver":
+                    duration = 3600; // 1 hour default for screensaver
+                    break;
+                default:
+                    duration = 300; // 5 minutes default
+            }
+
+            transitionTo(mode, testPrayerName, duration);
+        }
+    }, [transitionTo, getPrayerDurations, settings]);
 
     // Main scheduler effect - check for prayer time arrivals
     useEffect(() => {

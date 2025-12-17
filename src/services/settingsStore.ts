@@ -4,6 +4,7 @@ import { MosqueData } from '../types/mosque';
 import { Slide } from '../types/slide';
 import { ThemeName } from '../types/theme';
 import { FontThemeName } from '../types/fonts';
+import { ClockFontName } from '../types/clockFonts';
 import { PrayerAudioSettings } from '../types/audio';
 
 export interface LocationSettings {
@@ -65,6 +66,7 @@ export interface AppSettings {
     slides: Slide[];
     themeName: ThemeName;
     fontTheme: FontThemeName;
+    clockFont: ClockFontName; // Font for time display
     audio: PrayerAudioSettings;
     prayerTimeOffsets: Record<string, number>; // Minutes offset for each prayer
     location: LocationSettings;

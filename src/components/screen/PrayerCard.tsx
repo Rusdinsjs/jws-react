@@ -1,4 +1,5 @@
 import { useTheme } from "../../context/ThemeContext";
+import { useClockFont } from "../../context/ClockFontContext";
 import {
     Moon,
     Sunrise,
@@ -42,6 +43,7 @@ function PrayerCard({
     contentScale
 }: PrayerCardProps) {
     const { theme } = useTheme();
+    const { clockFontFamily } = useClockFont();
 
     // Determine actual scales (override specific > general > default)
     const wScale = widthScale ?? scale;
@@ -114,8 +116,9 @@ function PrayerCard({
                 </h3>
 
                 <div
-                    className="font-mono font-bold tracking-widest"
+                    className="font-bold tracking-widest"
                     style={{
+                        fontFamily: clockFontFamily,
                         color: isNext ? theme.colors.primary : theme.colors.textMuted,
                         fontSize: timeFontSize,
                         lineHeight: "1"

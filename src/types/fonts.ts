@@ -2,8 +2,15 @@ export type FontThemeName =
     | "inter"
     | "roboto"
     | "playfair"
-    | "montserrat"
-    | "lato";
+    | "oswald"
+    | "lobster"
+    | "jetbrains"
+    | "bebas"
+    | "cinzel"
+    | "quicksand"
+    | "bitter"
+    | "righteous"
+    | "archivo";
 
 export interface FontTheme {
     name: FontThemeName;
@@ -14,28 +21,63 @@ export interface FontTheme {
 export const FONTS: Record<FontThemeName, FontTheme> = {
     "inter": {
         name: "inter",
-        displayName: "Inter (System)",
+        displayName: "Inter (Modern Sans)",
         family: "'Inter', sans-serif"
     },
     "roboto": {
         name: "roboto",
-        displayName: "Roboto (Modern)",
+        displayName: "Roboto (Clean Tech)",
         family: "'Roboto', sans-serif"
     },
     "playfair": {
         name: "playfair",
-        displayName: "Playfair Display (Elegant)",
+        displayName: "Playfair Display (Elegant Serif)",
         family: "'Playfair Display', serif"
     },
-    "montserrat": {
-        name: "montserrat",
-        displayName: "Montserrat (Geometric)",
-        family: "'Montserrat', sans-serif"
+    "oswald": {
+        name: "oswald",
+        displayName: "Oswald (Bold Condensed)",
+        family: "'Oswald', sans-serif"
     },
-    "lato": {
-        name: "lato",
-        displayName: "Lato (Classic)",
-        family: "'Lato', sans-serif"
+    "lobster": {
+        name: "lobster",
+        displayName: "Lobster (Script Cursive)",
+        family: "'Lobster', cursive"
+    },
+    "jetbrains": {
+        name: "jetbrains",
+        displayName: "JetBrains Mono (Monospace)",
+        family: "'JetBrains Mono', monospace"
+    },
+    "bebas": {
+        name: "bebas",
+        displayName: "Bebas Neue (Block Caps)",
+        family: "'Bebas Neue', sans-serif"
+    },
+    "cinzel": {
+        name: "cinzel",
+        displayName: "Cinzel (Roman Classic)",
+        family: "'Cinzel', serif"
+    },
+    "quicksand": {
+        name: "quicksand",
+        displayName: "Quicksand (Rounded Soft)",
+        family: "'Quicksand', sans-serif"
+    },
+    "bitter": {
+        name: "bitter",
+        displayName: "Bitter (Slab Serif)",
+        family: "'Bitter', serif"
+    },
+    "righteous": {
+        name: "righteous",
+        displayName: "Righteous (Retro Display)",
+        family: "'Righteous', sans-serif"
+    },
+    "archivo": {
+        name: "archivo",
+        displayName: "Archivo Black (Heavy Impact)",
+        family: "'Archivo Black', sans-serif"
     }
 };
 
