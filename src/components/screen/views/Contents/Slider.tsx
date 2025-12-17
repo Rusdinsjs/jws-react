@@ -58,17 +58,19 @@ function Slider({ className = "", slides = [], interval = 10 }: ViewProps) {
             else if (currentSlide.fontSize === "large") fontSizeClass = "text-6xl";
 
             return (
-                <p
-                    className={`text-white font-light leading-relaxed ${fontSizeClass}`}
-                    style={{
-                        paddingLeft: `${currentSlide.indent}px`,
-                        textTransform: currentSlide.uppercase ? "uppercase" : "none",
-                        fontStyle: currentSlide.italic ? "italic" : "normal",
-                        fontFamily: currentSlide.fontFamily
-                    }}
-                >
-                    {currentSlide.content}
-                </p>
+                <div className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] bg-white/5 backdrop-blur-md rounded-2xl shadow-2xl flex items-center justify-center p-8">
+                    <p
+                        className={`text-white font-light leading-relaxed ${fontSizeClass}`}
+                        style={{
+                            paddingLeft: `${currentSlide.indent}px`,
+                            textTransform: currentSlide.uppercase ? "uppercase" : "none",
+                            fontStyle: currentSlide.italic ? "italic" : "normal",
+                            fontFamily: currentSlide.fontFamily
+                        }}
+                    >
+                        {currentSlide.content}
+                    </p>
+                </div>
             );
         }
 
@@ -77,8 +79,7 @@ function Slider({ className = "", slides = [], interval = 10 }: ViewProps) {
                 <img
                     src={currentSlide.src}
                     alt="Slide"
-                    className="max-w-full max-h-full object-contain drop-shadow-lg"
-                    style={{ width: 'auto', height: 'auto' }}
+                    className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] object-cover rounded-2xl shadow-2xl"
                 />
             );
         }
@@ -88,8 +89,7 @@ function Slider({ className = "", slides = [], interval = 10 }: ViewProps) {
                 <video
                     ref={videoRef}
                     src={currentSlide.src}
-                    className="max-w-full max-h-full object-contain"
-                    style={{ width: 'auto', height: 'auto' }}
+                    className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] object-cover rounded-2xl shadow-2xl"
                     autoPlay
                     muted
                     playsInline
@@ -103,19 +103,6 @@ function Slider({ className = "", slides = [], interval = 10 }: ViewProps) {
     return (
         <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex items-center justify-center h-full w-full relative overflow-hidden ${className}`}>
             {renderSlide()}
-
-            {/* Slide Indicator */}
-            {slides.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {slides.map((_, idx) => (
-                        <div
-                            key={idx}
-                            className={`w-2 h-2 rounded-full transition-all ${idx === currentIndex ? "bg-amber-500 scale-125" : "bg-white/30"
-                                }`}
-                        />
-                    ))}
-                </div>
-            )}
         </div>
     );
 }

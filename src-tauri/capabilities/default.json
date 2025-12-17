@@ -11,6 +11,9 @@
     "store:default",
     "dialog:default",
     "fs:default",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "process:default",
     {
       "identifier": "fs:allow-appdata-read-recursive",
       "allow": [

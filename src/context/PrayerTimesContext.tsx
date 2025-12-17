@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Coordinates, CalculationMethod, PrayerTimes } from 'adhan';
+import { Coordinates, CalculationMethod, PrayerTimes, Madhab } from 'adhan';
 
 export interface PrayerTime {
     name: string;
@@ -42,12 +42,28 @@ export const CALCULATION_METHODS = [
     { id: "Turkey", label: "Turkey" },
 ];
 
+// Available madhabs for Asr calculation
+export const MADHAB_LIST = [
+    { id: "Shafi", label: "Syafi'i / Maliki / Hambali" },
+    { id: "Hanafi", label: "Hanafi" },
+];
+
+// Common timezones for Indonesia
+export const TIMEZONE_LIST = [
+    { id: "Asia/Jakarta", label: "WIB (Jakarta, Sumatera, Jawa Barat)" },
+    { id: "Asia/Makassar", label: "WITA (Makassar, Bali, Kalimantan)" },
+    { id: "Asia/Jayapura", label: "WIT (Jayapura, Papua)" },
+    { id: "Asia/Singapore", label: "Singapore" },
+    { id: "Asia/Kuala_Lumpur", label: "Malaysia" },
+];
+
 interface PrayerTimesProviderProps {
     children: React.ReactNode;
     offsets: Record<string, number>; // { Subuh: 2, Maghrib: -1 }
     latitude?: number;
     longitude?: number;
     calculationMethod?: string;
+    madhab?: string;
 }
 
 export function PrayerTimesProvider({
@@ -55,7 +71,8 @@ export function PrayerTimesProvider({
     offsets = {},
     latitude = DEFAULT_COORDS.latitude,
     longitude = DEFAULT_COORDS.longitude,
-    calculationMethod = "Singapore"
+    calculationMethod = "Singapore",
+    madhab = "Shafi"
 }: PrayerTimesProviderProps) {
     const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
     const [nextPrayerIndex, setNextPrayerIndex] = useState<number>(-1);
@@ -81,6 +98,9 @@ export function PrayerTimesProvider({
                 case "Turkey": params = CalculationMethod.Turkey(); break;
                 default: params = CalculationMethod.Singapore(); break;
             }
+
+            // Apply madhab for Asr calculation
+            params.madhab = madhab === "Hanafi" ? Madhab.Hanafi : Madhab.Shafi;
 
             // Calculate for today
             const timesToday = new PrayerTimes(coords, now, params);
@@ -163,7 +183,7 @@ export function PrayerTimesProvider({
         const interval = setInterval(updatePrayerTimes, 60000); // Re-check every minute
 
         return () => clearInterval(interval);
-    }, [offsets, latitude, longitude, calculationMethod]); // Re-run when settings change
+    }, [offsets, latitude, longitude, calculationMethod, madhab]); // Re-run when settings change
 
     return (
         <PrayerTimesContext.Provider value={{ prayerTimes, nextPrayerIndex }}>

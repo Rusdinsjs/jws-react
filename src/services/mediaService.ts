@@ -115,3 +115,20 @@ export async function getMediaBasePath(): Promise<string> {
 export const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'];
 export const AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'];
 export const VIDEO_EXTENSIONS = ['mp4', 'webm', 'mkv', 'avi', 'mov'];
+
+/**
+ * Get the duration of an audio file from its URL
+ * @param url Asset URL of the audio file
+ * @returns Promise resolving to duration in seconds
+ */
+export function getAudioDuration(url: string): Promise<number> {
+    return new Promise((resolve, reject) => {
+        const audio = new Audio(url);
+        audio.onloadedmetadata = () => {
+            resolve(Math.ceil(audio.duration));
+        };
+        audio.onerror = (e) => {
+            reject(new Error(`Failed to load audio: ${e}`));
+        };
+    });
+}

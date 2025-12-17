@@ -10,6 +10,8 @@ export interface LocationSettings {
     latitude: number;
     longitude: number;
     calculationMethod: string; // e.g., "Singapore", "MuslimWorldLeague", "Egyptian", etc.
+    timezone: string; // e.g., "Asia/Jakarta", "Asia/Makassar"
+    madhab: string; // "Shafi" or "Hanafi" for Asr calculation
 }
 
 export interface PrayerDurations {

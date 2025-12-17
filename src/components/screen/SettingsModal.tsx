@@ -6,9 +6,12 @@ import { ThemeName, THEME_LIST, getTheme } from "../../types/theme";
 import { FontThemeName, FONT_LIST } from "../../types/fonts";
 import { PrayerAudioSettings, DEFAULT_AUDIO_CONFIG } from "../../types/audio";
 import { LocationSettings, FullscreenSettings } from "../../services/settingsStore";
-import { CALCULATION_METHODS } from "../../context/PrayerTimesContext";
+import { CALCULATION_METHODS, MADHAB_LIST, TIMEZONE_LIST } from "../../context/PrayerTimesContext";
 import { useAudio } from "../../context/AudioContext";
 import { MediaUploader } from "./MediaUploader";
+import { getAudioDuration } from "../../services/mediaService";
+import { exit } from "@tauri-apps/plugin-process";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 type TabName = "tampilan" | "masjid" | "jadwal" | "slideshow" | "audio" | "fullscreen" | "layout";
 
@@ -208,6 +211,7 @@ function SettingsModal({
     const [textUppercase, setTextUppercase] = useState(false);
     const [textItalic, setTextItalic] = useState(false);
     const [mediaUrl, setMediaUrl] = useState("");
+    const [showExitConfirm, setShowExitConfirm] = useState(false);
 
     const currentTheme = getTheme(themeName);
 
@@ -295,13 +299,30 @@ function SettingsModal({
                         ))}
                     </nav>
 
-                    <button
-                        onClick={onClose}
-                        className="mt-auto flex items-center gap-2 px-3 py-2 text-slate-400 hover:text-white transition-colors"
-                    >
-                        <span>✕</span>
-                        <span className="text-sm">Tutup (F2)</span>
-                    </button>
+                    {/* Window Control Buttons - Icon Only */}
+                    <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-3">
+                        <button
+                            onClick={onClose}
+                            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                            title="Tutup (F2)"
+                        >
+                            <span className="text-xl">✕</span>
+                        </button>
+                        <button
+                            onClick={() => getCurrentWindow().minimize()}
+                            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                            title="Minimize"
+                        >
+                            <span className="text-xl">🔽</span>
+                        </button>
+                        <button
+                            onClick={() => setShowExitConfirm(true)}
+                            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title="Keluar Aplikasi"
+                        >
+                            <span className="text-xl">⏻</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* Content Area */}
@@ -490,6 +511,43 @@ function SettingsModal({
                                         ))}
                                     </select>
                                 </div>
+
+                                <div className="grid grid-cols-2 gap-4 mt-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-slate-300">Timezone</label>
+                                        <select
+                                            value={locationSettings.timezone || "Asia/Makassar"}
+                                            onChange={(e) => onLocationChange({
+                                                ...locationSettings,
+                                                timezone: e.target.value
+                                            })}
+                                            className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                        >
+                                            {TIMEZONE_LIST.map((tz) => (
+                                                <option key={tz.id} value={tz.id}>
+                                                    {tz.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-slate-300">Madzhab (Ashar)</label>
+                                        <select
+                                            value={locationSettings.madhab || "Shafi"}
+                                            onChange={(e) => onLocationChange({
+                                                ...locationSettings,
+                                                madhab: e.target.value
+                                            })}
+                                            className="w-full bg-slate-700 border border-slate-600 text-white rounded px-3 py-2"
+                                        >
+                                            {MADHAB_LIST.map((m) => (
+                                                <option key={m.id} value={m.id}>
+                                                    {m.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <hr className="border-white/10" />
@@ -667,6 +725,48 @@ function SettingsModal({
                                     + Tambah Slide
                                 </button>
                             </div>
+
+                            {/* Media Tartil & Tarhim */}
+                            <div className="space-y-4 bg-slate-800/30 rounded-xl p-4 border border-slate-700">
+                                <h4 className="font-semibold text-white">Media Tartil & Tarhim</h4>
+                                <p className="text-slate-400 text-sm">
+                                    Media (gambar/video) yang ditampilkan di slide saat audio Tartil dan Tarhim diputar
+                                </p>
+
+                                <div className="space-y-4">
+                                    <div className="bg-teal-500/10 p-3 rounded-lg border border-teal-500/20">
+                                        <label className="block text-sm font-medium text-teal-400 mb-2">
+                                            📖 Media Tartil
+                                        </label>
+                                        <MediaUploader
+                                            subfolder="Image"
+                                            type="image"
+                                            value={fullscreenSettings.tartilMediaUrl}
+                                            onChange={(url) => onFullscreenSettingsChange({
+                                                ...fullscreenSettings,
+                                                tartilMediaUrl: url
+                                            })}
+                                            placeholder="Pilih gambar/video untuk Tartil..."
+                                        />
+                                    </div>
+
+                                    <div className="bg-amber-500/10 p-3 rounded-lg border border-amber-500/20">
+                                        <label className="block text-sm font-medium text-amber-400 mb-2">
+                                            🕌 Media Tarhim
+                                        </label>
+                                        <MediaUploader
+                                            subfolder="Image"
+                                            type="image"
+                                            value={fullscreenSettings.tarhimMediaUrl}
+                                            onChange={(url) => onFullscreenSettingsChange({
+                                                ...fullscreenSettings,
+                                                tarhimMediaUrl: url
+                                            })}
+                                            placeholder="Pilih gambar/video untuk Tarhim..."
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -745,7 +845,14 @@ function SettingsModal({
                                                                 subfolder="Audio"
                                                                 type="audio"
                                                                 value={config.tarhimSrc}
-                                                                onChange={(url) => updateConfig("tarhimSrc", url)}
+                                                                onChange={(url) => {
+                                                                    updateConfig("tarhimSrc", url);
+                                                                    if (url) {
+                                                                        getAudioDuration(url).then(duration => {
+                                                                            updateConfig("tarhimDuration", duration);
+                                                                        }).catch(err => console.error("Failed to get duration:", err));
+                                                                    }
+                                                                }}
                                                                 placeholder="Pilih file tarhim..."
                                                                 showPreview={false}
                                                             />
@@ -1044,6 +1151,34 @@ function SettingsModal({
                     )}
                 </div>
             </div>
+
+            {/* Exit Confirmation Modal */}
+            {showExitConfirm && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center">
+                    <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
+                        <h3 className="text-xl font-bold text-white mb-4 text-center">
+                            ⚠️ Konfirmasi Keluar
+                        </h3>
+                        <p className="text-slate-300 text-center mb-6">
+                            Apakah Anda yakin untuk mengakhiri aplikasi?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowExitConfirm(false)}
+                                className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={() => exit(0)}
+                                className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-semibold"
+                            >
+                                Ya, Keluar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -45,7 +45,9 @@ function MainScreen() {
     const [locationSettings, setLocationSettings] = useState<LocationSettings>({
         latitude: -6.2088,
         longitude: 106.8456,
-        calculationMethod: "Singapore"
+        calculationMethod: "Singapore",
+        timezone: "Asia/Makassar",
+        madhab: "Shafi"
     });
     const [fullscreenSettings, setFullscreenSettings] = useState<FullscreenSettings>(DEFAULT_FULLSCREEN_SETTINGS);
 
@@ -128,6 +130,7 @@ function MainScreen() {
                 latitude={locationSettings.latitude}
                 longitude={locationSettings.longitude}
                 calculationMethod={locationSettings.calculationMethod}
+                madhab={locationSettings.madhab}
             >
                 <FullscreenSchedulerProvider settings={fullscreenSettings}>
                     <AudioProvider initialSettings={audioSettings} onSettingsChange={setAudioSettings}>
