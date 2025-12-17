@@ -68,7 +68,7 @@ function SideBar({ position = "Vertical-Left" }: SideBarProps) {
             }}
         >
             {isVertical ? (
-                <div className="w-full flex-col gap-6 animate-scroll-vertical flex">
+                <div className="w-full flex-col -mr-4 gap-6 animate-scroll-vertical flex">
                     {content}
                 </div>
             ) : (

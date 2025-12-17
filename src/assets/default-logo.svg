@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="domeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#0f172a"/>
+  <circle cx="100" cy="100" r="90" fill="#1e293b"/>
+  
+  <!-- Main dome -->
+  <ellipse cx="100" cy="80" rx="50" ry="40" fill="url(#domeGrad)"/>
+  
+  <!-- Crescent moon on dome -->
+  <circle cx="100" cy="45" r="8" fill="#fbbf24"/>
+  <circle cx="103" cy="44" r="6" fill="url(#domeGrad)"/>
+  
+  <!-- Main body -->
+  <rect x="55" y="80" width="90" height="70" fill="url(#bodyGrad)"/>
+  
+  <!-- Door arch -->
+  <path d="M85 150 L85 115 Q100 95 115 115 L115 150 Z" fill="#10b981"/>
+  
+  <!-- Left minaret -->
+  <rect x="30" y="70" width="15" height="80" fill="url(#bodyGrad)"/>
+  <ellipse cx="37.5" cy="70" rx="10" ry="12" fill="url(#domeGrad)"/>
+  <circle cx="37.5" cy="60" r="3" fill="#fbbf24"/>
+  
+  <!-- Right minaret -->
+  <rect x="155" y="70" width="15" height="80" fill="url(#bodyGrad)"/>
+  <ellipse cx="162.5" cy="70" rx="10" ry="12" fill="url(#domeGrad)"/>
+  <circle cx="162.5" cy="60" r="3" fill="#fbbf24"/>
+  
+  <!-- Windows on main body -->
+  <ellipse cx="70" cy="110" rx="8" ry="12" fill="#10b981"/>
+  <ellipse cx="130" cy="110" rx="8" ry="12" fill="#10b981"/>
+  
+  <!-- Base -->
+  <rect x="25" y="150" width="150" height="10" rx="2" fill="#64748b"/>
+</svg>

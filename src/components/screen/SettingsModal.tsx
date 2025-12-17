@@ -8,6 +8,7 @@ import { PrayerAudioSettings, DEFAULT_AUDIO_CONFIG } from "../../types/audio";
 import { LocationSettings, FullscreenSettings } from "../../services/settingsStore";
 import { CALCULATION_METHODS } from "../../context/PrayerTimesContext";
 import { useAudio } from "../../context/AudioContext";
+import { MediaUploader } from "./MediaUploader";
 
 type TabName = "tampilan" | "masjid" | "jadwal" | "slideshow" | "audio" | "fullscreen" | "layout";
 
@@ -420,13 +421,13 @@ function SettingsModal({
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-slate-300">URL Logo</label>
-                                    <input
-                                        type="text"
+                                    <MediaUploader
+                                        subfolder="Image"
+                                        type="image"
+                                        label="Logo Masjid"
                                         value={mosqueData.logo}
-                                        onChange={(e) => handleMosqueChange("logo", e.target.value)}
-                                        className="w-full bg-slate-800/80 border border-slate-600 text-white rounded-lg p-3 focus:ring-2 focus:border-transparent placeholder-slate-500"
-                                        placeholder="https://example.com/logo.png"
+                                        onChange={(url) => handleMosqueChange("logo", url)}
+                                        placeholder="Pilih file logo..."
                                     />
                                 </div>
                             </div>
@@ -649,12 +650,12 @@ function SettingsModal({
                                         </div>
                                     </div>
                                 ) : (
-                                    <input
-                                        type="text"
+                                    <MediaUploader
+                                        subfolder={newSlideType === "image" ? "Image" : "Video"}
+                                        type={newSlideType as "image" | "video"}
                                         value={mediaUrl}
-                                        onChange={(e) => setMediaUrl(e.target.value)}
-                                        className="w-full bg-slate-700 border border-slate-600 text-white rounded-lg p-3"
-                                        placeholder={newSlideType === "image" ? "https://example.com/image.jpg" : "https://example.com/video.mp4"}
+                                        onChange={setMediaUrl}
+                                        placeholder={newSlideType === "image" ? "Pilih file gambar..." : "Pilih file video..."}
                                     />
                                 )}
 
@@ -711,16 +712,14 @@ function SettingsModal({
                                                             📖 Tartil (Sebelum Tarhim)
                                                         </h5>
                                                         <div className="grid grid-cols-[1fr_120px] gap-3 mb-2">
-                                                            <div className="space-y-1">
-                                                                <label className="text-xs text-slate-400">URL File Audio</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={config.tartilSrc}
-                                                                    onChange={(e) => updateConfig("tartilSrc", e.target.value)}
-                                                                    className="w-full bg-slate-700 border border-slate-600 text-white rounded px-2 py-1.5 text-sm"
-                                                                    placeholder="/audio/tartil-subuh.mp3"
-                                                                />
-                                                            </div>
+                                                            <MediaUploader
+                                                                subfolder="Audio"
+                                                                type="audio"
+                                                                value={config.tartilSrc}
+                                                                onChange={(url) => updateConfig("tartilSrc", url)}
+                                                                placeholder="Pilih file tartil..."
+                                                                showPreview={false}
+                                                            />
                                                             <div className="space-y-1">
                                                                 <label className="text-xs text-slate-400">Mulai (Menit)</label>
                                                                 <input
@@ -742,16 +741,14 @@ function SettingsModal({
                                                             🕌 Tarhim (Menjelang Adzan)
                                                         </h5>
                                                         <div className="grid grid-cols-[1fr_120px] gap-3 mb-2">
-                                                            <div className="space-y-1">
-                                                                <label className="text-xs text-slate-400">URL File Audio</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={config.tarhimSrc}
-                                                                    onChange={(e) => updateConfig("tarhimSrc", e.target.value)}
-                                                                    className="w-full bg-slate-700 border border-slate-600 text-white rounded px-2 py-1.5 text-sm"
-                                                                    placeholder="/audio/tarhim-subuh.mp3"
-                                                                />
-                                                            </div>
+                                                            <MediaUploader
+                                                                subfolder="Audio"
+                                                                type="audio"
+                                                                value={config.tarhimSrc}
+                                                                onChange={(url) => updateConfig("tarhimSrc", url)}
+                                                                placeholder="Pilih file tarhim..."
+                                                                showPreview={false}
+                                                            />
                                                             <div className="space-y-1">
                                                                 <label className="text-xs text-slate-400">Durasi (Detik)</label>
                                                                 <input
@@ -773,16 +770,14 @@ function SettingsModal({
                                                             🔊 Adzan (Saat Waktu Sholat)
                                                         </h5>
                                                         <div className="grid grid-cols-[1fr_120px] gap-3 mb-2">
-                                                            <div className="space-y-1">
-                                                                <label className="text-xs text-slate-400">URL File Audio</label>
-                                                                <input
-                                                                    type="text"
-                                                                    value={config.adzanSrc}
-                                                                    onChange={(e) => updateConfig("adzanSrc", e.target.value)}
-                                                                    className="w-full bg-slate-700 border border-slate-600 text-white rounded px-2 py-1.5 text-sm"
-                                                                    placeholder="/audio/adzan.mp3"
-                                                                />
-                                                            </div>
+                                                            <MediaUploader
+                                                                subfolder="Audio"
+                                                                type="audio"
+                                                                value={config.adzanSrc}
+                                                                onChange={(url) => updateConfig("adzanSrc", url)}
+                                                                placeholder="Pilih file adzan..."
+                                                                showPreview={false}
+                                                            />
                                                             <div className="space-y-1">
                                                                 <label className="text-xs text-slate-400">Durasi (Detik)</label>
                                                                 <input

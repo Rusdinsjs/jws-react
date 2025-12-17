@@ -1,4 +1,5 @@
 import { MosqueData } from "../../../../types/mosque";
+import defaultLogo from "../../../../assets/default-logo.svg";
 
 interface ViewProps {
     className?: string;
@@ -10,7 +11,7 @@ function Header({ className = "", data, onOpenSettings }: ViewProps) {
     // Default values if data is missing
     const name = data?.name || "Nama Masjid";
     const address = data?.address || "Alamat Masjid belum diatur";
-    const logo = data?.logo;
+    const logo = data?.logo || defaultLogo;
 
     return (
         <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex items-center h-full w-full ${className}`}>

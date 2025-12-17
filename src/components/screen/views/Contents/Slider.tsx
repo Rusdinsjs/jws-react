@@ -77,7 +77,8 @@ function Slider({ className = "", slides = [], interval = 10 }: ViewProps) {
                 <img
                     src={currentSlide.src}
                     alt="Slide"
-                    className="w-full h-full object-contain drop-shadow-lg"
+                    className="max-w-full max-h-full object-contain drop-shadow-lg"
+                    style={{ width: 'auto', height: 'auto' }}
                 />
             );
         }
@@ -87,7 +88,8 @@ function Slider({ className = "", slides = [], interval = 10 }: ViewProps) {
                 <video
                     ref={videoRef}
                     src={currentSlide.src}
-                    className="w-full h-full object-contain"
+                    className="max-w-full max-h-full object-contain"
+                    style={{ width: 'auto', height: 'auto' }}
                     autoPlay
                     muted
                     playsInline
