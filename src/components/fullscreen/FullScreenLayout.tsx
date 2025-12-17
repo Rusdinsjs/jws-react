@@ -5,14 +5,16 @@ interface FullScreenLayoutProps {
     children: ReactNode;
     title?: string;
     subtitle?: string;
-    bgGradient?: string; // Optional override
+    bgGradient?: string; // Optional gradient override
+    bgImage?: string;    // Background image URL
 }
 
 function FullScreenLayout({
     children,
     title,
     subtitle,
-    bgGradient
+    bgGradient,
+    bgImage
 }: FullScreenLayoutProps) {
     const { theme } = useTheme();
 
@@ -20,7 +22,21 @@ function FullScreenLayout({
     const gradient = bgGradient || theme.colors.fullscreenGradient;
 
     return (
-        <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gradient-to-br ${gradient} text-white p-10 transition-colors duration-500`}>
+        <div
+            className={`fixed inset-0 z-[100] flex flex-col items-center justify-center text-white p-10 transition-colors duration-500`}
+            style={{
+                backgroundImage: bgImage
+                    ? `linear-gradient(to bottom right, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url(${bgImage})`
+                    : undefined,
+                backgroundSize: bgImage ? 'cover' : undefined,
+                backgroundPosition: bgImage ? 'center' : undefined
+            }}
+        >
+            {/* Fallback gradient if no image */}
+            {!bgImage && (
+                <div className={`absolute inset-0 bg-gradient-to-br ${gradient} -z-10`} />
+            )}
+
             {(title || subtitle) && (
                 <div className="absolute top-10 left-0 right-0 text-center">
                     {title && (

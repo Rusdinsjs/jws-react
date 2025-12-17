@@ -17,33 +17,33 @@ function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = []
     const isHorizontalBottom = layoutPosition === "Horizontal-Bottom";
 
     return (
-        <div className="flex-1 grid grid-rows-[20vh_1fr] h-full overflow-y-auto">
+        <div className="flex-1 grid grid-rows-[20vh_1fr] h-full overflow-hidden">
             {/* Row 1 - 20vh (Fixed Height) */}
-            <Header className="border-b border-white/20" data={mosqueData} onOpenSettings={onOpenSettings} />
+            <Header data={mosqueData} onOpenSettings={onOpenSettings} />
 
             {/* Row 2 - Rest of height */}
             {isHorizontalBottom ? (
                 /* Horizontal-Bottom Layout: Row 2 split into 2 Cols (70% - 30%) */
-                <div className="grid grid-cols-[70%_30%] h-full">
+                <div className="grid grid-cols-[70%_30%] h-full overflow-hidden">
                     {/* Col 1 (70%) */}
-                    <Slider className="border-r border-white/20" slides={slides} />
+                    <Slider slides={slides} />
 
                     {/* Col 2 (30%) */}
-                    <div className="grid grid-rows-2 h-full">
-                        <NextPrayer className="border-b border-white/20" />
-                        <Info className="border-white/20" />
+                    <div className="grid grid-rows-2 h-full overflow-hidden">
+                        <NextPrayer />
+                        <Info />
                     </div>
                 </div>
             ) : (
                 /* Default Layout (Vertical) */
-                <div className="grid grid-rows-[70%_30%] h-full">
+                <div className="grid grid-rows-[70%_30%] h-full overflow-hidden">
                     {/* Row 2a - 70% */}
-                    <Slider className="border-b border-white/20" slides={slides} />
+                    <Slider slides={slides} />
 
                     {/* Row 2b - 30% (Split into 2 cols) */}
-                    <div className="grid grid-cols-2 h-full">
-                        <NextPrayer className="border-r border-white/20" />
-                        <Info className="border-white/20" />
+                    <div className="grid grid-cols-2 h-full overflow-hidden">
+                        <NextPrayer />
+                        <Info />
                     </div>
                 </div>
             )}

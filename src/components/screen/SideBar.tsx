@@ -1,6 +1,6 @@
 import { LayoutPosition } from "../../types/layout";
 import { useTheme } from "../../context/ThemeContext";
-import { usePrayerTimes } from "../../hooks/usePrayerTimes";
+import { usePrayerTimes } from "../../context/PrayerTimesContext";
 import PrayerCard from "./PrayerCard";
 
 interface SideBarProps {

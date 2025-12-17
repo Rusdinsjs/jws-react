@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../../../../context/ThemeContext";
-import { usePrayerTimes } from "../../../../hooks/usePrayerTimes";
+import { usePrayerTimes } from "../../../../context/PrayerTimesContext";
 
 interface ViewProps {
     className?: string;
@@ -56,10 +56,9 @@ function NextPrayer({ className = "" }: ViewProps) {
 
     return (
         <div
-            className={`flex flex-col items-center justify-center h-full w-full backdrop-blur-md p-6 shadow-2xl relative overflow-hidden group ${className}`}
+            className={`flex flex-col items-center justify-center h-full w-full backdrop-blur-md p-6 relative overflow-hidden group ${className}`}
             style={{
-                backgroundColor: theme.colors.glassBackground,
-                border: `1px solid ${theme.colors.glassBorder}`
+                backgroundColor: theme.colors.glassBackground
             }}
         >
             {/* Animated Background Pulse */}
@@ -95,8 +94,7 @@ function NextPrayer({ className = "" }: ViewProps) {
                 </div>
             </div>
 
-            {/* Progress Bar Visual (Optional - maybe a thin line at bottom) */}
-            <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent w-full opacity-50" />
+
         </div>
     );
 }

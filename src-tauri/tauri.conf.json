@@ -25,7 +25,9 @@
       "assetProtocol": {
         "enable": true,
         "scope": [
-          "**"
+          "$APPDATA/**",
+          "$RESOURCE/**",
+          "$HOME/.local/share/**"
         ]
       }
     }

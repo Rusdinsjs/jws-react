@@ -1,4 +1,26 @@
 import { useTheme } from "../../context/ThemeContext";
+import {
+    Moon,
+    Sunrise,
+    Sun,
+    CloudSun,
+    Sunset,
+    CloudMoon,
+    Stars,
+    LucideIcon
+} from "lucide-react";
+
+// Map prayer names to icons
+const prayerIcons: Record<string, LucideIcon> = {
+    "Imsak": Moon,
+    "Subuh": Sunrise,
+    "Syuruq": Sun,
+    "Dhuha": CloudSun,
+    "Dzuhur": Sun,
+    "Ashar": Sunset,
+    "Maghrib": CloudMoon,
+    "Isya": Stars
+};
 
 interface PrayerCardProps {
     name: string;
@@ -41,11 +63,15 @@ function PrayerCard({
     const height = `${baseHeight * hScale}vh`;
 
     // Icon Size Base: 5rem (w-20)
-    const iconSize = `${5 * cScale}rem`;
+    const iconSizeRem = 5 * cScale;
+    const iconSize = `${iconSizeRem}rem`;
 
     // Font Size Bases
     const nameFontSize = `${3.2 * cScale}rem`;
     const timeFontSize = `${6.72 * cScale}rem`;
+
+    // Get the appropriate icon for this prayer
+    const IconComponent = prayerIcons[name] || Sun;
 
     return (
         <div
@@ -64,15 +90,14 @@ function PrayerCard({
 
             {/* Icon - Top Left */}
             <div
-                className="absolute top-4 left-4 rounded-full flex items-center justify-center text-4xl bg-white/10 backdrop-blur-sm"
+                className="absolute top-4 left-4 rounded-full flex items-center justify-center bg-white/10 backdrop-blur-sm"
                 style={{
                     color: isNext ? theme.colors.primaryLight : theme.colors.textSecondary,
                     width: iconSize,
                     height: iconSize
                 }}
             >
-                {/* Placeholder Emoji until images are fully integrated */}
-                🕌
+                <IconComponent size={iconSizeRem * 10} strokeWidth={1.5} />
             </div>
 
             {/* Text Container - Centered */}

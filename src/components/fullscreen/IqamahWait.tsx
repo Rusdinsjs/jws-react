@@ -1,16 +1,35 @@
 import FullScreenLayout from "./FullScreenLayout";
 import Countdown from "./Countdown";
+import { useFullscreenScheduler } from "../../context/FullscreenSchedulerContext";
 
-function IqamahWait() {
+interface IqamahWaitProps {
+    bgImage?: string;
+}
+
+function IqamahWait({ bgImage }: IqamahWaitProps) {
+    const { timeRemaining, currentPrayerName } = useFullscreenScheduler();
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+
     return (
-        <FullScreenLayout title="MENUNGGU IQAMAH" subtitle="Luruskan dan Rapatkan Shaf">
+        <FullScreenLayout
+            title="MENUNGGU IQAMAH"
+            subtitle={currentPrayerName ? `Sholat ${currentPrayerName}` : "Luruskan dan Rapatkan Shaf"}
+            bgImage={bgImage}
+        >
             <div className="flex flex-col items-center gap-10">
-                {/* Animation Placeholder */}
-                <div className="w-64 h-64 bg-blue-500/20 rounded-lg animate-pulse flex items-center justify-center border-4 border-blue-500/50">
-                    <span className="text-blue-500 text-center font-bold">Image<br />Tunggu Sholat</span>
-                </div>
+                {/* Animation - shows when no bgImage */}
+                {!bgImage && (
+                    <div className="w-64 h-64 bg-blue-500/20 rounded-lg animate-pulse flex items-center justify-center border-4 border-blue-500/50">
+                        <span className="text-8xl">🧎</span>
+                    </div>
+                )}
 
-                <Countdown minutes={10} seconds={0} label="Iqamah Dalam" />
+                <Countdown minutes={minutes} seconds={seconds} label="Iqamah Dalam" />
+
+                <p className="text-3xl text-white/80 font-medium tracking-wide">
+                    Luruskan dan Rapatkan Shaf
+                </p>
             </div>
         </FullScreenLayout>
     );
