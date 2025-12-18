@@ -7,7 +7,7 @@ import { LayoutPosition, FullScreenMode } from "../types/layout";
 import { MosqueData } from "../types/mosque";
 import { Slide } from "../types/slide";
 import { ThemeName, DEFAULT_THEME, getTheme } from "../types/theme";
-import { FontThemeName, DEFAULT_FONT } from "../types/fonts";
+import { FontThemeName, DEFAULT_FONT, TimeFontThemeName, DEFAULT_TIME_FONT } from "../types/fonts";
 import { PrayerAudioSettings } from "../types/audio";
 import { ThemeProvider } from "../context/ThemeContext";
 import { AudioProvider } from "../context/AudioContext";
@@ -40,6 +40,7 @@ function MainScreen() {
     const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
     const [themeName, setThemeName] = useState<ThemeName>(DEFAULT_THEME);
     const [fontTheme, setFontTheme] = useState<FontThemeName>(DEFAULT_FONT);
+    const [timeFontTheme, setTimeFontTheme] = useState<TimeFontThemeName>(DEFAULT_TIME_FONT);
     const [audioSettings, setAudioSettings] = useState<PrayerAudioSettings>({});
     const [prayerTimeOffsets, setPrayerTimeOffsets] = useState<Record<string, number>>({});
     const [locationSettings, setLocationSettings] = useState<LocationSettings>({
@@ -47,7 +48,8 @@ function MainScreen() {
         longitude: 106.8456,
         calculationMethod: "Singapore",
         timezone: "Asia/Makassar",
-        madhab: "Shafi"
+        madhab: "Shafi",
+        ihtiati: 2
     });
     const [fullscreenSettings, setFullscreenSettings] = useState<FullscreenSettings>(DEFAULT_FULLSCREEN_SETTINGS);
 
@@ -67,6 +69,7 @@ function MainScreen() {
                     setSlides(saved.slides);
                     if (saved.themeName) setThemeName(saved.themeName);
                     if (saved.fontTheme) setFontTheme(saved.fontTheme);
+                    if (saved.timeFontTheme) setTimeFontTheme(saved.timeFontTheme);
                     if (saved.audio) setAudioSettings(saved.audio);
                     if (saved.prayerTimeOffsets) setPrayerTimeOffsets(saved.prayerTimeOffsets);
                     if (saved.location) setLocationSettings(saved.location);
@@ -91,6 +94,7 @@ function MainScreen() {
                 slides,
                 themeName,
                 fontTheme,
+                timeFontTheme,
                 audio: audioSettings,
                 prayerTimeOffsets: prayerTimeOffsets,
                 location: locationSettings,
@@ -98,7 +102,7 @@ function MainScreen() {
             })
                 .catch(err => console.error("Failed to save settings:", err));
         }
-    }, [layoutPosition, mosqueData, slides, themeName, fontTheme, audioSettings, prayerTimeOffsets, locationSettings, fullscreenSettings]);
+    }, [layoutPosition, mosqueData, slides, themeName, fontTheme, timeFontTheme, audioSettings, prayerTimeOffsets, locationSettings, fullscreenSettings]);
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -124,16 +128,25 @@ function MainScreen() {
     }
 
     return (
-        <ThemeProvider initialTheme={themeName} initialFont={fontTheme} onThemeChange={setThemeName} onFontChange={setFontTheme}>
+        <ThemeProvider
+            initialTheme={themeName}
+            initialFont={fontTheme}
+            initialTimeFont={timeFontTheme}
+            onThemeChange={setThemeName}
+            onFontChange={setFontTheme}
+            onTimeFontChange={setTimeFontTheme}
+        >
             <PrayerTimesProvider
                 offsets={prayerTimeOffsets}
                 latitude={locationSettings.latitude}
                 longitude={locationSettings.longitude}
                 calculationMethod={locationSettings.calculationMethod}
                 madhab={locationSettings.madhab}
+                timezone={locationSettings.timezone}
+                ihtiati={locationSettings.ihtiati}
             >
-                <FullscreenSchedulerProvider settings={fullscreenSettings}>
-                    <AudioProvider initialSettings={audioSettings} onSettingsChange={setAudioSettings}>
+                <AudioProvider initialSettings={audioSettings} onSettingsChange={setAudioSettings}>
+                    <FullscreenSchedulerProvider settings={fullscreenSettings}>
                         <MainScreenContent
                             theme={theme}
                             isHorizontal={isHorizontal}
@@ -149,6 +162,8 @@ function MainScreen() {
                             setThemeName={setThemeName}
                             fontTheme={fontTheme}
                             setFontTheme={setFontTheme}
+                            timeFontTheme={timeFontTheme}
+                            setTimeFontTheme={setTimeFontTheme}
                             audioSettings={audioSettings}
                             setAudioSettings={setAudioSettings}
                             prayerTimeOffsets={prayerTimeOffsets}
@@ -160,8 +175,8 @@ function MainScreen() {
                             isSettingsOpen={isSettingsOpen}
                             setIsSettingsOpen={setIsSettingsOpen}
                         />
-                    </AudioProvider>
-                </FullscreenSchedulerProvider>
+                    </FullscreenSchedulerProvider>
+                </AudioProvider>
             </PrayerTimesProvider>
         </ThemeProvider>
     );
@@ -183,6 +198,8 @@ interface MainScreenContentProps {
     setThemeName: (name: ThemeName) => void;
     fontTheme: FontThemeName;
     setFontTheme: (name: FontThemeName) => void;
+    timeFontTheme: TimeFontThemeName;
+    setTimeFontTheme: (name: TimeFontThemeName) => void;
     audioSettings: PrayerAudioSettings;
     setAudioSettings: (settings: PrayerAudioSettings) => void;
     prayerTimeOffsets: Record<string, number>;
@@ -210,6 +227,8 @@ function MainScreenContent({
     setThemeName,
     fontTheme,
     setFontTheme,
+    timeFontTheme,
+    setTimeFontTheme,
     audioSettings,
     setAudioSettings,
     prayerTimeOffsets,
@@ -221,7 +240,7 @@ function MainScreenContent({
     isSettingsOpen,
     setIsSettingsOpen
 }: MainScreenContentProps) {
-    const { currentMode } = useFullscreenScheduler();
+    const { currentMode, timeRemaining } = useFullscreenScheduler();
     const schedulerModeRef = useRef(currentMode);
 
     // Sync scheduler mode to state - only when scheduler initiates a new mode
@@ -245,7 +264,7 @@ function MainScreenContent({
             {/* Conditional Rendering based on Layout Position */}
 
             {/* Sidebar First if Vertical-Left */}
-            {layoutPosition === "Vertical-Left" && <SideBar position="Vertical-Left" />}
+            {layoutPosition === "Vertical-Left" && <SideBar position="Vertical-Left" timezone={locationSettings.timezone} />}
 
             <div className="flex-1 h-full relative">
                 <MainContent
@@ -253,19 +272,20 @@ function MainScreenContent({
                     mosqueData={mosqueData}
                     slides={slides}
                     onOpenSettings={() => setIsSettingsOpen(true)}
+                    timezone={locationSettings.timezone}
                 />
                 <DigitalClock layoutPosition={layoutPosition} />
             </div>
 
             {/* Sidebar Second if Vertical-Right */}
-            {layoutPosition === "Vertical-Right" && <SideBar position="Vertical-Right" />}
+            {layoutPosition === "Vertical-Right" && <SideBar position="Vertical-Right" timezone={locationSettings.timezone} />}
 
             {/* Footer Sidebar if Horizontal-Bottom */}
-            {layoutPosition === "Horizontal-Bottom" && <SideBar position="Horizontal-Bottom" />}
+            {layoutPosition === "Horizontal-Bottom" && <SideBar position="Horizontal-Bottom" timezone={locationSettings.timezone} />}
 
             {/* Fullscreen Overlays */}
             {fullscreenMode === "PreAdzan" && <PreAdzan />}
-            {fullscreenMode === "Adzan" && <Adzan />}
+            {fullscreenMode === "Adzan" && <Adzan timeRemaining={timeRemaining} />}
             {fullscreenMode === "IqamahWait" && <IqamahWait />}
             {fullscreenMode === "Sholat" && <Sholat />}
             {fullscreenMode === "ScreenSaver" && <ScreenSaver />}
@@ -288,6 +308,8 @@ function MainScreenContent({
                 onThemeChange={setThemeName}
                 fontTheme={fontTheme}
                 onFontChange={setFontTheme}
+                timeFontTheme={timeFontTheme}
+                onTimeFontChange={setTimeFontTheme}
                 audioSettings={audioSettings}
                 onAudioSettingsChange={setAudioSettings}
                 prayerTimeOffsets={prayerTimeOffsets}

@@ -75,11 +75,20 @@ export function MediaUploader({
         onChange('');
     };
 
-    // Extract filename from URL for display
-    const getFilename = (url: string): string => {
+    // Extract path from URL for display
+    const getDisplayPath = (url: string): string => {
         if (!url) return '';
-        const parts = url.split('/');
-        return decodeURIComponent(parts[parts.length - 1]) || url;
+        try {
+            // Handle Tauri asset URLs
+            if (url.startsWith('http://asset.localhost/')) {
+                const pathPart = url.replace('http://asset.localhost/', '');
+                return decodeURIComponent(pathPart);
+            }
+            // Handle other URLs
+            return decodeURIComponent(url);
+        } catch (e) {
+            return url;
+        }
     };
 
     const renderPreview = () => {
@@ -193,7 +202,7 @@ export function MediaUploader({
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap'
                 }}>
-                    {value ? getFilename(value) : placeholder}
+                    {value ? getDisplayPath(value) : placeholder}
                 </span>
             </div>
 

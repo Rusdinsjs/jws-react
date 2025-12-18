@@ -64,6 +64,8 @@ interface PrayerTimesProviderProps {
     longitude?: number;
     calculationMethod?: string;
     madhab?: string;
+    timezone?: string;
+    ihtiati?: number;
 }
 
 export function PrayerTimesProvider({
@@ -72,7 +74,9 @@ export function PrayerTimesProvider({
     latitude = DEFAULT_COORDS.latitude,
     longitude = DEFAULT_COORDS.longitude,
     calculationMethod = "Singapore",
-    madhab = "Shafi"
+    madhab = "Shafi",
+    timezone = "Asia/Makassar",
+    ihtiati = 2
 }: PrayerTimesProviderProps) {
     const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
     const [nextPrayerIndex, setNextPrayerIndex] = useState<number>(-1);
@@ -108,7 +112,8 @@ export function PrayerTimesProvider({
             // Helper to apply offset
             const getOffsetTime = (baseTime: Date, name: string) => {
                 const offsetMinutes = offsets[name] || 0;
-                return new Date(baseTime.getTime() + offsetMinutes * 60000);
+                // Add Global Ihtiati
+                return new Date(baseTime.getTime() + (offsetMinutes + ihtiati) * 60000);
             };
 
             // Helper to calculate Imsak (10 mins before Subuh)
@@ -177,13 +182,17 @@ export function PrayerTimesProvider({
 
             setPrayerTimes(formattedList);
             setNextPrayerIndex(nextIdx);
+
+            // Debug logging
+            console.log('[PrayerTimes] Calculation params:', { latitude, longitude, calculationMethod, madhab, timezone });
+            console.log('[PrayerTimes] Calculated times:', formattedList.map(p => ({ name: p.name, time: p.time.toLocaleTimeString() })));
         };
 
         updatePrayerTimes();
         const interval = setInterval(updatePrayerTimes, 60000); // Re-check every minute
 
         return () => clearInterval(interval);
-    }, [offsets, latitude, longitude, calculationMethod, madhab]); // Re-run when settings change
+    }, [offsets, latitude, longitude, calculationMethod, madhab, timezone, ihtiati]); // Re-run when settings change
 
     return (
         <PrayerTimesContext.Provider value={{ prayerTimes, nextPrayerIndex }}>

@@ -123,7 +123,7 @@ function Info({ className = "" }: ViewProps) {
     if (!event) return null;
 
     return (
-        <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex flex-col items-center justify-center h-full w-full ${className}`}>
+        <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex flex-col items-center justify-center h-full w-full overflow-hidden ${className}`}>
             <p className="text-amber-500 text-[1.31rem] font-semibold tracking-wider uppercase mb-1">
                 {event.type === "Fasting" ? "Jadwal Puasa Sunnah" : "Hari Besar Islam Berikutnya"}
             </p>
@@ -153,7 +153,7 @@ function Info({ className = "" }: ViewProps) {
             })()}
 
             {event.description && (
-                <div className="mt-2 bg-black/20 rounded-lg px-4 py-2 border border-white/5">
+                <div className="mt-2 bg-black/20 rounded-lg px-4 py-2">
                     <p className="text-lg text-slate-400 text-center italic">
                         "{event.description}"
                     </p>

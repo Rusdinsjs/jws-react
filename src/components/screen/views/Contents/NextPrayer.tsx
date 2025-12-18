@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../../../../context/ThemeContext";
-import { usePrayerTimes } from "../../../../hooks/usePrayerTimes";
+import { usePrayerTimes } from "../../../../context/PrayerTimesContext";
 
 interface ViewProps {
     className?: string;
+    timezone?: string;
 }
 
-function NextPrayer({ className = "" }: ViewProps) {
+function NextPrayer({ className = "", timezone = "Asia/Makassar" }: ViewProps) {
     const { theme } = useTheme();
     const { prayerTimes, nextPrayerIndex } = usePrayerTimes();
     const [timeLeft, setTimeLeft] = useState<string>("");
@@ -54,12 +55,18 @@ function NextPrayer({ className = "" }: ViewProps) {
         );
     }
 
+    const formattedTime = new Intl.DateTimeFormat("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: timezone
+    }).format(nextPrayer.time).replace('.', ':');
+
     return (
         <div
             className={`flex flex-col items-center justify-center h-full w-full backdrop-blur-md p-6 shadow-2xl relative overflow-hidden group ${className}`}
             style={{
                 backgroundColor: theme.colors.glassBackground,
-                border: `1px solid ${theme.colors.glassBorder}`
             }}
         >
             {/* Animated Background Pulse */}
@@ -79,7 +86,8 @@ function NextPrayer({ className = "" }: ViewProps) {
                     className="text-5xl lg:text-7xl font-mono font-bold tracking-wider tabular-nums flex items-baseline gap-1"
                     style={{
                         color: theme.colors.primary,
-                        textShadow: `0 0 30px ${theme.colors.primary}60`
+                        textShadow: `0 0 30px ${theme.colors.primary}60`,
+                        fontFamily: "var(--font-family-time)"
                     }}
                 >
                     {/* Animate each character change? For now, standard text update with pulse effect */}
@@ -91,7 +99,7 @@ function NextPrayer({ className = "" }: ViewProps) {
                     className="text-center mt-2 text-sm lg:text-base font-medium tracking-wide uppercase"
                     style={{ color: theme.colors.textMuted }}
                 >
-                    {nextPrayer.time.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+                    {formattedTime}
                 </div>
             </div>
 

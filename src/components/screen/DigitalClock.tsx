@@ -46,7 +46,7 @@ function DigitalClock({ }: DigitalClockProps) {
 
     // Determine position classes based on layout
     // Always Top-Right as requested
-    const positionClasses = "absolute top-6 right-6 text-right z-50";
+    const positionClasses = "absolute top-6 right-8 text-right z-50";
 
     // Determine flex alignment for date container
     const dateContainerClasses = "mt-1 flex flex-col items-end";
@@ -54,10 +54,10 @@ function DigitalClock({ }: DigitalClockProps) {
     return (
         <div className={positionClasses}>
             <div className="flex items-start font-bold text-white tracking-wider -mt-5 drop-shadow-2xl p-1 justify-end ">
-                <span className="text-[7rem] leading-none w-[320px]">
+                <span className="text-[7rem] leading-none w-[400px]" style={{ fontFamily: "var(--font-family-time)" }}>
                     {time.hours}:{time.minutes}
                 </span>
-                <span className="text-[5.46rem] leading-none -translate-y-1 ml-1 opacity-90 text-amber-500 w-[120px]">
+                <span className="text-[5rem] leading-none -translate-y-1 ml-1 opacity-90 text-amber-500 w-[120px]" style={{ fontFamily: "var(--font-family-time)" }}>
                     {time.seconds}
                 </span>
             </div>

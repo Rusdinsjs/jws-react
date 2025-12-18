@@ -52,10 +52,21 @@ export function AudioProvider({ children, initialSettings, onSettingsChange }: A
         setAudioState(state);
         setCurrentPrayerName(prayerName);
 
-        // Play audio if source provided
-        if (src && audioRef.current) {
+        // If no src provided, try to find it in settings
+        let finalSrc = src;
+        if (!finalSrc) {
+            const config = settings[prayerName];
+            if (config) {
+                if (state === "Tartil") finalSrc = config.tartilSrc;
+                else if (state === "Tarhim") finalSrc = config.tarhimSrc;
+                else if (state === "Adzan") finalSrc = config.adzanSrc;
+            }
+        }
+
+        // Play audio if source found
+        if (finalSrc && audioRef.current) {
             audioRef.current.pause();
-            audioRef.current.src = src;
+            audioRef.current.src = finalSrc;
             audioRef.current.play().catch(e => console.error("Audio playback error:", e));
         }
     };

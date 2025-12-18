@@ -1,13 +1,14 @@
 import { LayoutPosition } from "../../types/layout";
 import { useTheme } from "../../context/ThemeContext";
-import { usePrayerTimes } from "../../hooks/usePrayerTimes";
+import { usePrayerTimes } from "../../context/PrayerTimesContext";
 import PrayerCard from "./PrayerCard";
 
 interface SideBarProps {
     position?: LayoutPosition;
+    timezone?: string;
 }
 
-function SideBar({ position = "Vertical-Left" }: SideBarProps) {
+function SideBar({ position = "Vertical-Left", timezone = "Asia/Makassar" }: SideBarProps) {
     const { theme } = useTheme();
     const { prayerTimes } = usePrayerTimes();
 
@@ -42,6 +43,7 @@ function SideBar({ position = "Vertical-Left" }: SideBarProps) {
                     scale={cardScale}
                     heightScale={heightScale}
                     contentScale={contentScale}
+                    timezone={timezone}
                 />
             ))}
             {/* Duplicated content for seamless scrolling */}
@@ -54,6 +56,7 @@ function SideBar({ position = "Vertical-Left" }: SideBarProps) {
                     scale={cardScale}
                     heightScale={heightScale}
                     contentScale={contentScale}
+                    timezone={timezone}
                 />
             ))}
         </>

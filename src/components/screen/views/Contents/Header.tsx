@@ -14,11 +14,11 @@ function Header({ className = "", data, onOpenSettings }: ViewProps) {
     const logo = data?.logo || defaultLogo;
 
     return (
-        <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex items-center h-full w-full ${className}`}>
+        <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex items-center h-full w-full overflow-hidden ${className}`}>
             <div className="flex items-center w-full gap-6">
                 {/* Column 1: Logo */}
                 <div
-                    className="w-[12%] flex justify-center border-r border-white/10 pr-6 cursor-pointer hover:opacity-80 transition-opacity"
+                    className="w-[12%] flex justify-center cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={onOpenSettings}
                 >
                     {logo ? (

@@ -2,11 +2,13 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { usePrayerTimes } from './PrayerTimesContext';
 import { FullscreenSettings, PrayerDurations } from '../services/settingsStore';
 import { FullScreenMode } from '../types/layout';
+import { useAudio } from './AudioContext';
 
 interface FullscreenSchedulerContextType {
     currentMode: FullScreenMode;
     currentPrayerName: string | null;
     timeRemaining: number; // seconds
+    totalDuration: number; // For progress tracking
     manualOverride: (mode: FullScreenMode) => void;
 }
 
@@ -34,6 +36,7 @@ type SchedulerState = {
 
 export function FullscreenSchedulerProvider({ children, settings }: FullscreenSchedulerProviderProps) {
     const { prayerTimes } = usePrayerTimes();
+    const { audioSettings } = useAudio();
     const [state, setState] = useState<SchedulerState>({
         mode: "None",
         prayerName: null,
@@ -41,6 +44,7 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
         duration: 0
     });
     const [timeRemaining, setTimeRemaining] = useState(0);
+    const [totalDuration, setTotalDuration] = useState(0);
 
     // Check if current time is within screensaver range
     const isScreenSaverTime = useCallback(() => {
@@ -74,6 +78,7 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
             duration
         });
         setTimeRemaining(duration);
+        setTotalDuration(duration);
     }, []);
 
     // Manual override
@@ -81,10 +86,30 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
         if (mode === "None") {
             setState({ mode: "None", prayerName: null, startTime: null, duration: 0 });
             setTimeRemaining(0);
+            setTotalDuration(0);
         } else {
-            transitionTo(mode, null, 0); // Manual mode with no auto-timeout
+            // Get appropriate duration for manual test modes
+            let duration = 0;
+            const testPrayer = "Subuh"; // Default prayer for testing
+
+            if (mode === "Adzan") {
+                duration = audioSettings[testPrayer]?.adzanDuration || settings.Subuh?.adzanDuration || 300;
+            } else if (mode === "IqamahWait") {
+                duration = settings.Subuh?.iqamahWaitDuration || 600;
+            } else if (mode === "Sholat") {
+                duration = settings.Subuh?.sholatDuration || 900;
+            } else if (mode === "PreKhutbah") {
+                duration = settings.preKhutbahDuration || 900;
+            } else if (mode === "Khutbah") {
+                duration = settings.khutbahDuration || 1800;
+            } else {
+                duration = 300; // Default 5 minutes for other modes
+            }
+
+            console.log(`[Scheduler] Manual override: ${mode} with duration ${duration}s`);
+            transitionTo(mode, testPrayer, duration);
         }
-    }, [transitionTo]);
+    }, [transitionTo, audioSettings, settings]);
 
     // Helper to get prayer durations
     const getPrayerDurations = useCallback((prayerName: string): PrayerDurations => {
@@ -113,12 +138,15 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
                     const isDzuhurOnFriday = isFriday() && prayer.name === "Dzuhur";
                     const durations = getPrayerDurations(prayer.name);
 
+                    // Use duration from audio settings if available, else fallback
+                    const adzanDuration = audioSettings[prayer.name]?.adzanDuration || durations.adzanDuration;
+
                     if (isDzuhurOnFriday) {
                         // Friday Dzuhur: PreKhutbah -> Khutbah -> Sholat
                         transitionTo("PreKhutbah", prayer.name, settings.preKhutbahDuration);
                     } else if (["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"].includes(prayer.name)) {
                         // Normal prayer: Adzan -> IqamahWait -> Sholat
-                        transitionTo("Adzan", prayer.name, durations.adzanDuration);
+                        transitionTo("Adzan", prayer.name, adzanDuration);
                     }
                     break;
                 }
@@ -189,6 +217,7 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
             currentMode: state.mode,
             currentPrayerName: state.prayerName,
             timeRemaining,
+            totalDuration,
             manualOverride
         }}>
             {children}

@@ -8,6 +8,7 @@ interface PrayerCardProps {
     widthScale?: number;  // Specific width scale
     heightScale?: number; // Specific height scale
     contentScale?: number;// Specific text/icon scale
+    timezone?: string;    // Timezone for display (e.g., "Asia/Makassar")
 }
 
 function PrayerCard({
@@ -17,7 +18,8 @@ function PrayerCard({
     scale = 1,
     widthScale,
     heightScale,
-    contentScale
+    contentScale,
+    timezone = "Asia/Makassar"
 }: PrayerCardProps) {
     const { theme } = useTheme();
 
@@ -26,12 +28,13 @@ function PrayerCard({
     const hScale = heightScale ?? scale;
     const cScale = contentScale ?? scale;
 
-    // Format time HH:mm
-    const timeString = time.toLocaleTimeString("id-ID", {
+    // Format time HH:mm using configured timezone
+    const timeString = new Intl.DateTimeFormat("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
-        hour12: false
-    }).replace('.', ':');
+        hour12: false,
+        timeZone: timezone
+    }).format(time).replace('.', ':');
 
     // Base Dimensions: 30vw * 0.9 = 27vw, 24vh * 0.95 = 22.8vh
     const baseWidth = 27;
@@ -93,7 +96,8 @@ function PrayerCard({
                     style={{
                         color: isNext ? theme.colors.primary : theme.colors.textMuted,
                         fontSize: timeFontSize,
-                        lineHeight: "1"
+                        lineHeight: "1",
+                        fontFamily: "var(--font-family-time)"
                     }}
                 >
                     {timeString}

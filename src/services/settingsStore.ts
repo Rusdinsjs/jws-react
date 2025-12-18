@@ -3,7 +3,7 @@ import { LayoutPosition } from '../types/layout';
 import { MosqueData } from '../types/mosque';
 import { Slide } from '../types/slide';
 import { ThemeName } from '../types/theme';
-import { FontThemeName } from '../types/fonts';
+import { FontThemeName, TimeFontThemeName } from '../types/fonts';
 import { PrayerAudioSettings } from '../types/audio';
 
 export interface LocationSettings {
@@ -12,6 +12,7 @@ export interface LocationSettings {
     calculationMethod: string; // e.g., "Singapore", "MuslimWorldLeague", "Egyptian", etc.
     timezone: string; // e.g., "Asia/Jakarta", "Asia/Makassar"
     madhab: string; // "Shafi" or "Hanafi" for Asr calculation
+    ihtiati: number; // Global safety margin in minutes (default 2)
 }
 
 export interface PrayerDurations {
@@ -65,6 +66,7 @@ export interface AppSettings {
     slides: Slide[];
     themeName: ThemeName;
     fontTheme: FontThemeName;
+    timeFontTheme?: TimeFontThemeName;
     audio: PrayerAudioSettings;
     prayerTimeOffsets: Record<string, number>; // Minutes offset for each prayer
     location: LocationSettings;

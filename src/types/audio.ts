@@ -6,6 +6,7 @@ export interface AudioConfig {
     adzanSrc: string; // URL
     adzanDuration: number; // Seconds duration of adzan (default 300 / 5 mins)
     enabled: boolean;
+    adzanAudioEnabled: boolean;
 }
 
 // Keyed by prayer name (Subuh, Dzuhur, etc.)
@@ -22,5 +23,6 @@ export const DEFAULT_AUDIO_CONFIG: AudioConfig = {
     tarhimDuration: 300, // 5 minutes default
     adzanSrc: "",
     adzanDuration: 300, // 5 minutes default
-    enabled: true
+    enabled: true,
+    adzanAudioEnabled: false
 };

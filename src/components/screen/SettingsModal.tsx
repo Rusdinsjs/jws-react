@@ -3,7 +3,7 @@ import { LayoutPosition, FullScreenMode } from "../../types/layout";
 import { MosqueData } from "../../types/mosque";
 import { Slide, TextSlide, MediaSlide } from "../../types/slide";
 import { ThemeName, THEME_LIST, getTheme } from "../../types/theme";
-import { FontThemeName, FONT_LIST } from "../../types/fonts";
+import { FontThemeName, FONT_LIST, TimeFontThemeName, TIME_FONT_LIST } from "../../types/fonts";
 import { PrayerAudioSettings, DEFAULT_AUDIO_CONFIG } from "../../types/audio";
 import { LocationSettings, FullscreenSettings } from "../../services/settingsStore";
 import { CALCULATION_METHODS, MADHAB_LIST, TIMEZONE_LIST } from "../../context/PrayerTimesContext";
@@ -30,6 +30,8 @@ interface SettingsModalProps {
     onThemeChange: (name: ThemeName) => void;
     fontTheme: FontThemeName;
     onFontChange: (name: FontThemeName) => void;
+    timeFontTheme: TimeFontThemeName;
+    onTimeFontChange: (name: TimeFontThemeName) => void;
     audioSettings: PrayerAudioSettings;
     onAudioSettingsChange: (settings: PrayerAudioSettings) => void;
     prayerTimeOffsets: Record<string, number>;
@@ -54,11 +56,11 @@ const TABS: { id: TabName; label: string; icon: string }[] = [
 interface TestAudioButtonsProps {
     onFullscreenChange: (mode: FullScreenMode) => void;
     fullscreenMode: FullScreenMode;
-    onClose: () => void; // Close modal when testing fullscreen
+    onClose?: () => void;
 }
 
-function TestAudioButtons({ onFullscreenChange, fullscreenMode, onClose }: TestAudioButtonsProps) {
-    const { audioState, testAudio, stopTest } = useAudio();
+function TestAudioButtons({ onFullscreenChange, fullscreenMode }: TestAudioButtonsProps) {
+    const { audioState, testAudio, stopTest, audioSettings } = useAudio();
     const [testPrayer, setTestPrayer] = useState("Subuh");
 
     const prayers = ["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"];
@@ -74,16 +76,17 @@ function TestAudioButtons({ onFullscreenChange, fullscreenMode, onClose }: TestA
 
     // Adzan: trigger audio AND fullscreen
     const handleTestAdzan = () => {
-        console.log(`[Test] Triggering Adzan with audio`);
-        testAudio("Adzan", testPrayer); // Play audio
+        const config = audioSettings[testPrayer];
+        console.log(`[Test] Triggering Adzan with audio`, config);
+        if (config?.adzanAudioEnabled) {
+            testAudio("Adzan", testPrayer); // Play audio
+        }
         onFullscreenChange("Adzan"); // Navigate to fullscreen
-        onClose(); // Close modal
     };
 
     const handleTestFullscreen = (mode: FullScreenMode) => {
         console.log(`[Test] Navigating to fullscreen: ${mode}`);
         onFullscreenChange(mode);
-        onClose(); // Close modal to show fullscreen
     };
 
     const handleStopTest = () => {
@@ -191,6 +194,8 @@ function SettingsModal({
     onThemeChange,
     fontTheme,
     onFontChange,
+    timeFontTheme,
+    onTimeFontChange,
     audioSettings,
     onAudioSettingsChange,
     prayerTimeOffsets,
@@ -206,7 +211,7 @@ function SettingsModal({
     const [newSlideType, setNewSlideType] = useState<"text" | "image" | "video">("text");
     const [textContent, setTextContent] = useState("");
     const [textFontSize, setTextFontSize] = useState("text-4xl");
-    const [textFont, setTextFont] = useState<FontThemeName>("inter");
+    const [textFont, setTextFont] = useState<FontThemeName>("modern");
     const [textIndent, setTextIndent] = useState(0);
     const [textUppercase, setTextUppercase] = useState(false);
     const [textItalic, setTextItalic] = useState(false);
@@ -242,7 +247,7 @@ function SettingsModal({
                 type: "text",
                 content: textContent,
                 fontSize: textFontSize,
-                fontFamily: "inherit",
+                fontFamily: "'Inter', sans-serif", // Default fixed font for slides
                 indent: textIndent,
                 uppercase: textUppercase,
                 italic: textItalic
@@ -406,6 +411,47 @@ function SettingsModal({
                                     </button>
                                 ))}
                             </div>
+
+                            <div className="border-t border-white/10 my-6"></div>
+
+                            <div>
+                                <h3 className="text-2xl font-bold text-white mb-2">Pilih Font Waktu & Jam</h3>
+                                <p className="text-slate-400 text-sm mb-6">Pilih jenis huruf khusus untuk tampilan waktu, jam, dan hitung mundur</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {TIME_FONT_LIST.map((f) => (
+                                    <button
+                                        key={f.name}
+                                        onClick={() => onTimeFontChange(f.name as TimeFontThemeName)}
+                                        className={`relative rounded-xl p-4 transition-all duration-200 border-2 hover:scale-105 ${timeFontTheme === f.name
+                                            ? "border-white ring-2 ring-white/50 bg-white/10"
+                                            : "border-slate-700 hover:border-slate-500 bg-slate-800/50"
+                                            }`}
+                                    >
+                                        <span
+                                            className="text-2xl block mb-1 text-white text-center font-bold"
+                                            style={{ fontFamily: f.family }}
+                                        >
+                                            12:34:56
+                                        </span>
+                                        <span
+                                            className="text-xs text-slate-400 block text-center"
+                                        >
+                                            {f.displayName}
+                                        </span>
+
+                                        {timeFontTheme === f.name && (
+                                            <div
+                                                className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold"
+                                                style={{ backgroundColor: currentTheme.colors.primary }}
+                                            >
+                                                ✓
+                                            </div>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -556,6 +602,25 @@ function SettingsModal({
                             <div>
                                 <h3 className="text-2xl font-bold text-white mb-2">Koreksi Jadwal Sholat</h3>
                                 <p className="text-slate-400 text-sm mb-6">Sesuaikan waktu sholat jika ada selisih (+/- menit)</p>
+                            </div>
+
+                            {/* Global Ihtiati */}
+                            <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4">
+                                <label className="block text-sm font-medium text-slate-300 mb-2">
+                                    Ihtiati (Koreksi Global)
+                                </label>
+                                <div className="flex items-center gap-4">
+                                    <input
+                                        type="number"
+                                        value={locationSettings.ihtiati || 2}
+                                        onChange={(e) => onLocationChange({
+                                            ...locationSettings,
+                                            ihtiati: parseInt(e.target.value) || 0
+                                        })}
+                                        className="bg-slate-700 border border-slate-600 text-white rounded-lg p-2 w-20 text-center font-bold"
+                                    />
+                                    <span className="text-slate-400 text-sm">Menit (Ditambahkan ke semua waktu sholat)</span>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 gap-4">
@@ -873,30 +938,72 @@ function SettingsModal({
 
                                                     {/* Adzan Section */}
                                                     <div className="bg-slate-900/30 p-3 rounded-lg border border-white/5">
-                                                        <h5 className="text-sm font-semibold text-green-400 mb-3 flex items-center gap-2">
-                                                            🔊 Adzan (Saat Waktu Sholat)
-                                                        </h5>
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <h5 className="text-sm font-semibold text-green-400 flex items-center gap-2">
+                                                                🔊 Adzan (Saat Waktu Sholat)
+                                                            </h5>
+                                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                                <span className="text-xs text-slate-400">Audio Adzan</span>
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={config.adzanAudioEnabled}
+                                                                    onChange={(e) => {
+                                                                        const isEnabled = e.target.checked;
+                                                                        onAudioSettingsChange({
+                                                                            ...audioSettings,
+                                                                            [prayer]: {
+                                                                                ...config,
+                                                                                adzanAudioEnabled: isEnabled,
+                                                                                adzanDuration: !isEnabled ? 300 : config.adzanDuration
+                                                                            }
+                                                                        });
+                                                                    }}
+                                                                    className="w-4 h-4 rounded"
+                                                                />
+                                                            </label>
+                                                        </div>
+
                                                         <div className="grid grid-cols-[1fr_120px] gap-3 mb-2">
-                                                            <MediaUploader
-                                                                subfolder="Audio"
-                                                                type="audio"
-                                                                value={config.adzanSrc}
-                                                                onChange={(url) => updateConfig("adzanSrc", url)}
-                                                                placeholder="Pilih file adzan..."
-                                                                showPreview={false}
-                                                            />
+                                                            {config.adzanAudioEnabled ? (
+                                                                <MediaUploader
+                                                                    subfolder="Audio"
+                                                                    type="audio"
+                                                                    value={config.adzanSrc}
+                                                                    onChange={(url) => {
+                                                                        updateConfig("adzanSrc", url);
+                                                                        if (url) {
+                                                                            getAudioDuration(url).then(duration => {
+                                                                                updateConfig("adzanDuration", Math.ceil(duration));
+                                                                            }).catch(err => console.error("Failed to get duration:", err));
+                                                                        }
+                                                                    }}
+                                                                    placeholder="Pilih file adzan..."
+                                                                    showPreview={false}
+                                                                />
+                                                            ) : (
+                                                                <div className="bg-slate-800/50 rounded-lg p-3 text-xs text-slate-500 italic flex items-center">
+                                                                    Audio Adzan Dinonaktifkan (Simulasi Visual Saja)
+                                                                </div>
+                                                            )}
                                                             <div className="space-y-1">
                                                                 <label className="text-xs text-slate-400">Durasi (Detik)</label>
                                                                 <input
                                                                     type="number"
                                                                     value={config.adzanDuration}
-                                                                    onChange={(e) => updateConfig("adzanDuration", Number(e.target.value))}
-                                                                    className="w-full bg-slate-700 border border-slate-600 text-white rounded px-2 py-1.5 text-sm"
+                                                                    onChange={(e) => {
+                                                                        if (!config.adzanAudioEnabled) {
+                                                                            updateConfig("adzanDuration", Number(e.target.value));
+                                                                        }
+                                                                    }}
+                                                                    disabled={config.adzanAudioEnabled}
+                                                                    className={`w-full bg-slate-700 border border-slate-600 text-white rounded px-2 py-1.5 text-sm ${config.adzanAudioEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                                 />
                                                             </div>
                                                         </div>
                                                         <p className="text-xs text-slate-500 italic">
-                                                            Diputar tepat saat waktu sholat tiba.
+                                                            {config.adzanAudioEnabled
+                                                                ? "Audio akan diputar tepat saat waktu sholat."
+                                                                : "Hanya menampilkan layar fullscreen saat waktu sholat."}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1122,29 +1229,12 @@ function SettingsModal({
                                     </div>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <label className="block text-sm font-medium text-slate-300">Preview Fullscreen Mode</label>
-                                    <select
-                                        value={fullscreenMode}
-                                        onChange={(e) => onFullscreenChange(e.target.value as FullScreenMode)}
-                                        className="w-full bg-slate-800 border border-slate-600 text-white rounded-lg p-3"
-                                    >
-                                        <option value="None" className="bg-slate-800">None (Normal View)</option>
-                                        <option value="PreAdzan" className="bg-slate-800">Pre-Adzan</option>
-                                        <option value="Adzan" className="bg-slate-800">Adzan</option>
-                                        <option value="IqamahWait" className="bg-slate-800">Menunggu Iqamah</option>
-                                        <option value="Sholat" className="bg-slate-800">Sedang Sholat</option>
-                                        <option value="ScreenSaver" className="bg-slate-800">Screen Saver</option>
-                                        <option value="JumaatTime" className="bg-slate-800">Sholat Jum'at</option>
-                                        <option value="PreKhutbah" className="bg-slate-800">Persiapan Khutbah</option>
-                                        <option value="Khutbah" className="bg-slate-800">Sedang Khutbah</option>
-                                    </select>
-                                </div>
+
 
                                 {/* Test Audio Section */}
                                 <div className="space-y-3 pt-4 border-t border-white/10">
                                     <label className="block text-sm font-medium text-slate-300">🧪 Test Audio & Display</label>
-                                    <TestAudioButtons onFullscreenChange={onFullscreenChange} fullscreenMode={fullscreenMode} onClose={onClose} />
+                                    <TestAudioButtons onFullscreenChange={onFullscreenChange} fullscreenMode={fullscreenMode} />
                                 </div>
                             </div>
                         </div>

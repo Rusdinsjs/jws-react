@@ -1,6 +1,9 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { Theme, ThemeName, getTheme, DEFAULT_THEME, THEME_LIST } from "../types/theme";
-import { FontThemeName, getFont, DEFAULT_FONT, FONT_LIST, FontTheme } from "../types/fonts";
+import {
+    FontThemeName, getFont, DEFAULT_FONT, FONT_LIST, FontTheme,
+    TimeFontThemeName, getTimeFont, DEFAULT_TIME_FONT, TIME_FONT_LIST, TimeFontTheme
+} from "../types/fonts";
 
 interface ThemeContextType {
     theme: Theme;
@@ -10,6 +13,9 @@ interface ThemeContextType {
     fontTheme: FontThemeName;
     setFontTheme: (name: FontThemeName) => void;
     fonts: FontTheme[];
+    timeFontTheme: TimeFontThemeName;
+    setTimeFontTheme: (name: TimeFontThemeName) => void;
+    timeFonts: TimeFontTheme[];
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -18,17 +24,30 @@ interface ThemeProviderProps {
     children: ReactNode;
     initialTheme?: ThemeName;
     initialFont?: FontThemeName;
+    initialTimeFont?: TimeFontThemeName;
     onThemeChange?: (name: ThemeName) => void;
     onFontChange?: (name: FontThemeName) => void;
+    onTimeFontChange?: (name: TimeFontThemeName) => void;
 }
 
-export function ThemeProvider({ children, initialTheme = DEFAULT_THEME, initialFont = DEFAULT_FONT, onThemeChange, onFontChange }: ThemeProviderProps) {
+export function ThemeProvider({
+    children,
+    initialTheme = DEFAULT_THEME,
+    initialFont = DEFAULT_FONT,
+    initialTimeFont = DEFAULT_TIME_FONT,
+    onThemeChange,
+    onFontChange,
+    onTimeFontChange
+}: ThemeProviderProps) {
     const [themeName, setThemeNameState] = useState<ThemeName>(initialTheme);
     const [fontTheme, setFontThemeState] = useState<FontThemeName>(initialFont);
+    const [timeFontTheme, setTimeFontThemeState] = useState<TimeFontThemeName>(initialTimeFont);
+
     const theme = getTheme(themeName);
     const font = getFont(fontTheme);
+    const timeFont = getTimeFont(timeFontTheme);
 
-    // Sync with external initialTheme changes
+    // Sync with external initial changes
     useEffect(() => {
         setThemeNameState(initialTheme);
     }, [initialTheme]);
@@ -36,6 +55,10 @@ export function ThemeProvider({ children, initialTheme = DEFAULT_THEME, initialF
     useEffect(() => {
         setFontThemeState(initialFont);
     }, [initialFont]);
+
+    useEffect(() => {
+        setTimeFontThemeState(initialTimeFont);
+    }, [initialTimeFont]);
 
     const setThemeName = (name: ThemeName) => {
         setThemeNameState(name);
@@ -45,6 +68,11 @@ export function ThemeProvider({ children, initialTheme = DEFAULT_THEME, initialF
     const setFontTheme = (name: FontThemeName) => {
         setFontThemeState(name);
         onFontChange?.(name);
+    };
+
+    const setTimeFontTheme = (name: TimeFontThemeName) => {
+        setTimeFontThemeState(name);
+        onTimeFontChange?.(name);
     };
 
     // Apply CSS variables for dynamic theming
@@ -60,12 +88,17 @@ export function ThemeProvider({ children, initialTheme = DEFAULT_THEME, initialF
         root.style.setProperty("--theme-glass-bg", theme.colors.glassBackground);
         root.style.setProperty("--theme-glass-border", theme.colors.glassBorder);
 
-        // Apply Font
+        // Apply Fonts
         root.style.setProperty("--font-family", font.family);
-    }, [theme, font]);
+        root.style.setProperty("--font-family-time", timeFont.family);
+    }, [theme, font, timeFont]);
 
     return (
-        <ThemeContext.Provider value={{ theme, themeName, setThemeName, themes: THEME_LIST, fontTheme, setFontTheme, fonts: FONT_LIST }}>
+        <ThemeContext.Provider value={{
+            theme, themeName, setThemeName, themes: THEME_LIST,
+            fontTheme, setFontTheme, fonts: FONT_LIST,
+            timeFontTheme, setTimeFontTheme, timeFonts: TIME_FONT_LIST
+        }}>
             {children}
         </ThemeContext.Provider>
     );
