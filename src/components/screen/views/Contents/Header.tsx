@@ -17,11 +17,7 @@ function Header({ className = "", data, onOpenSettings }: ViewProps) {
         <div className={`bg-white/10 backdrop-blur-md p-6 shadow-2xl flex items-center h-full w-full overflow-hidden ${className}`}>
             <div className="flex items-center w-full gap-6">
                 <div
-<<<<<<< HEAD
                     className="w-[12%] flex justify-center cursor-pointer hover:opacity-80 transition-opacity"
-=======
-                    className="flex justify-center cursor-pointer hover:opacity-80 transition-opacity"
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
                     onClick={onOpenSettings}
                 >
                     {logo ? (

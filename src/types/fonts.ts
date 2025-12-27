@@ -1,9 +1,7 @@
 export type FontThemeName =
-<<<<<<< HEAD
     | "modern"
     | "elegant"
-    | "rounded";
-=======
+    | "rounded"
     | "inter"
     | "roboto"
     | "playfair"
@@ -16,7 +14,6 @@ export type FontThemeName =
     | "bitter"
     | "righteous"
     | "archivo";
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
 
 export interface FontTheme {
     name: FontThemeName;
@@ -25,7 +22,6 @@ export interface FontTheme {
 }
 
 export const FONTS: Record<FontThemeName, FontTheme> = {
-<<<<<<< HEAD
     "modern": {
         name: "modern",
         displayName: "Modern Geometric (Outfit)",
@@ -40,7 +36,7 @@ export const FONTS: Record<FontThemeName, FontTheme> = {
         name: "rounded",
         displayName: "Modern Rounded (Quicksand)",
         family: "'Quicksand', sans-serif"
-=======
+    },
     "inter": {
         name: "inter",
         displayName: "Inter (Modern Sans)",
@@ -100,7 +96,6 @@ export const FONTS: Record<FontThemeName, FontTheme> = {
         name: "archivo",
         displayName: "Archivo Black (Heavy Impact)",
         family: "'Archivo Black', sans-serif"
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
     }
 };
 
@@ -158,4 +153,3 @@ export function getTimeFont(name: TimeFontThemeName): TimeFontTheme {
 
 export const FONT_LIST = Object.values(FONTS);
 export const TIME_FONT_LIST = Object.values(TIME_FONTS);
-

@@ -3,17 +3,11 @@ import { LayoutPosition, FullScreenMode } from "../../types/layout";
 import { MosqueData } from "../../types/mosque";
 import { Slide, TextSlide, MediaSlide } from "../../types/slide";
 import { ThemeName, THEME_LIST, getTheme } from "../../types/theme";
-<<<<<<< HEAD
 import { FontThemeName, FONT_LIST, TimeFontThemeName, TIME_FONT_LIST } from "../../types/fonts";
-=======
-import { FontThemeName, FONT_LIST } from "../../types/fonts";
-import { CLOCK_FONT_LIST } from "../../types/clockFonts";
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
 import { PrayerAudioSettings, DEFAULT_AUDIO_CONFIG } from "../../types/audio";
 import { LocationSettings, FullscreenSettings } from "../../services/settingsStore";
 import { CALCULATION_METHODS, MADHAB_LIST, TIMEZONE_LIST } from "../../context/PrayerTimesContext";
 import { useAudio } from "../../context/AudioContext";
-import { useClockFont } from "../../context/ClockFontContext";
 import { useFullscreenScheduler } from "../../context/FullscreenSchedulerContext";
 import { MediaUploader } from "./MediaUploader";
 import { getAudioDuration } from "../../services/mediaService";
@@ -66,14 +60,9 @@ interface TestAudioButtonsProps {
     onClose?: () => void;
 }
 
-<<<<<<< HEAD
-function TestAudioButtons({ onFullscreenChange, fullscreenMode }: TestAudioButtonsProps) {
-    const { audioState, testAudio, stopTest, audioSettings } = useAudio();
-=======
 function TestAudioButtons({ onFullscreenChange, fullscreenMode, onClose }: TestAudioButtonsProps) {
     const { audioState, testAudio, stopTest } = useAudio();
     const { manualOverride } = useFullscreenScheduler();
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
     const [testPrayer, setTestPrayer] = useState("Subuh");
 
     const prayers = ["Subuh", "Dzuhur", "Ashar", "Maghrib", "Isya"];
@@ -89,32 +78,22 @@ function TestAudioButtons({ onFullscreenChange, fullscreenMode, onClose }: TestA
 
     // Adzan: trigger audio AND fullscreen with countdown
     const handleTestAdzan = () => {
-<<<<<<< HEAD
-        const config = audioSettings[testPrayer];
-        console.log(`[Test] Triggering Adzan with audio`, config);
-        if (config?.adzanAudioEnabled) {
-            testAudio("Adzan", testPrayer); // Play audio
-        }
-        onFullscreenChange("Adzan"); // Navigate to fullscreen
-    };
-
-    const handleTestFullscreen = (mode: FullScreenMode) => {
-        console.log(`[Test] Navigating to fullscreen: ${mode}`);
-        onFullscreenChange(mode);
-=======
         console.log(`[Test] Triggering Adzan with audio for ${testPrayer}`);
-        testAudio("Adzan", testPrayer); // Play audio
+
+        // Respect audio settings for test?
+        // Let's use forcefully test for "Test Button".
+        testAudio("Adzan", testPrayer);
+
         manualOverride("Adzan", testPrayer); // Start countdown timer via context
         onFullscreenChange("Adzan"); // Update UI state
-        onClose(); // Close modal
+        if (onClose) onClose(); // Close modal
     };
 
     const handleTestFullscreen = (mode: FullScreenMode) => {
         console.log(`[Test] Navigating to fullscreen: ${mode} for ${testPrayer}`);
         manualOverride(mode, testPrayer); // Start countdown timer via context
         onFullscreenChange(mode); // Update UI state
-        onClose(); // Close modal to show fullscreen
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
+        if (onClose) onClose(); // Close modal to show fullscreen
     };
 
     const handleStopTest = () => {
@@ -235,7 +214,6 @@ function SettingsModal({
     onFullscreenSettingsChange
 }: SettingsModalProps) {
     const [activeTab, setActiveTab] = useState<TabName>("tampilan");
-    const { clockFont, setClockFont } = useClockFont();
 
     // Local state for new slide form
     const [newSlideType, setNewSlideType] = useState<"text" | "image" | "video">("text");
@@ -444,7 +422,6 @@ function SettingsModal({
 
                             <div className="border-t border-white/10 my-6"></div>
 
-<<<<<<< HEAD
                             <div>
                                 <h3 className="text-2xl font-bold text-white mb-2">Pilih Font Waktu & Jam</h3>
                                 <p className="text-slate-400 text-sm mb-6">Pilih jenis huruf khusus untuk tampilan waktu, jam, dan hitung mundur</p>
@@ -477,36 +454,6 @@ function SettingsModal({
                                                 className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold"
                                                 style={{ backgroundColor: currentTheme.colors.primary }}
                                             >
-=======
-                            {/* Clock Font Selection */}
-                            <div>
-                                <h3 className="text-2xl font-bold text-white mb-2">Font Waktu Sholat</h3>
-                                <p className="text-slate-400 text-sm mb-6">Pilih jenis huruf untuk tampilan waktu di prayer card</p>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                {CLOCK_FONT_LIST.map((f) => (
-                                    <button
-                                        key={f.name}
-                                        onClick={() => setClockFont(f.name)}
-                                        className={`relative rounded-xl p-4 transition-all duration-200 border-2 hover:scale-105 ${clockFont === f.name
-                                            ? "border-amber-400 ring-2 ring-amber-400/50 bg-amber-500/10"
-                                            : "border-slate-700 hover:border-slate-500 bg-slate-800/50"
-                                            }`}
-                                    >
-                                        <span className="text-sm block mb-2 text-slate-400">
-                                            {f.displayName}
-                                        </span>
-                                        <span
-                                            className="text-3xl text-white block"
-                                            style={{ fontFamily: f.family }}
-                                        >
-                                            12:34
-                                        </span>
-
-                                        {clockFont === f.name && (
-                                            <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold bg-amber-500">
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
                                                 ✓
                                             </div>
                                         )}
@@ -1290,12 +1237,10 @@ function SettingsModal({
                                     </div>
                                 </div>
 
-
-
                                 {/* Test Audio Section */}
                                 <div className="space-y-3 pt-4 border-t border-white/10">
                                     <label className="block text-sm font-medium text-slate-300">🧪 Test Audio & Display</label>
-                                    <TestAudioButtons onFullscreenChange={onFullscreenChange} fullscreenMode={fullscreenMode} />
+                                    <TestAudioButtons onFullscreenChange={onFullscreenChange} fullscreenMode={fullscreenMode} onClose={onClose} />
                                 </div>
                             </div>
                         </div>
@@ -1304,33 +1249,35 @@ function SettingsModal({
             </div>
 
             {/* Exit Confirmation Modal */}
-            {showExitConfirm && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center">
-                    <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
-                        <h3 className="text-xl font-bold text-white mb-4 text-center">
-                            ⚠️ Konfirmasi Keluar
-                        </h3>
-                        <p className="text-slate-300 text-center mb-6">
-                            Apakah Anda yakin untuk mengakhiri aplikasi?
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowExitConfirm(false)}
-                                className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
-                            >
-                                Batal
-                            </button>
-                            <button
-                                onClick={() => exit(0)}
-                                className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-semibold"
-                            >
-                                Ya, Keluar
-                            </button>
+            {
+                showExitConfirm && (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center">
+                        <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
+                            <h3 className="text-xl font-bold text-white mb-4 text-center">
+                                ⚠️ Konfirmasi Keluar
+                            </h3>
+                            <p className="text-slate-300 text-center mb-6">
+                                Apakah Anda yakin untuk mengakhiri aplikasi?
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowExitConfirm(false)}
+                                    className="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    onClick={() => exit(0)}
+                                    className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-semibold"
+                                >
+                                    Ya, Keluar
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
 

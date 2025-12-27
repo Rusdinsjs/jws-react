@@ -8,12 +8,8 @@ interface FullscreenSchedulerContextType {
     currentMode: FullScreenMode;
     currentPrayerName: string | null;
     timeRemaining: number; // seconds
-<<<<<<< HEAD
     totalDuration: number; // For progress tracking
-    manualOverride: (mode: FullScreenMode) => void;
-=======
     manualOverride: (mode: FullScreenMode, prayerName?: string) => void;
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
 }
 
 const FullscreenSchedulerContext = createContext<FullscreenSchedulerContextType | undefined>(undefined);
@@ -85,41 +81,7 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
         setTotalDuration(duration);
     }, []);
 
-<<<<<<< HEAD
-    // Manual override
-    const manualOverride = useCallback((mode: FullScreenMode) => {
-        if (mode === "None") {
-            setState({ mode: "None", prayerName: null, startTime: null, duration: 0 });
-            setTimeRemaining(0);
-            setTotalDuration(0);
-        } else {
-            // Get appropriate duration for manual test modes
-            let duration = 0;
-            const testPrayer = "Subuh"; // Default prayer for testing
-
-            if (mode === "Adzan") {
-                duration = audioSettings[testPrayer]?.adzanDuration || settings.Subuh?.adzanDuration || 300;
-            } else if (mode === "IqamahWait") {
-                duration = settings.Subuh?.iqamahWaitDuration || 600;
-            } else if (mode === "Sholat") {
-                duration = settings.Subuh?.sholatDuration || 900;
-            } else if (mode === "PreKhutbah") {
-                duration = settings.preKhutbahDuration || 900;
-            } else if (mode === "Khutbah") {
-                duration = settings.khutbahDuration || 1800;
-            } else {
-                duration = 300; // Default 5 minutes for other modes
-            }
-
-            console.log(`[Scheduler] Manual override: ${mode} with duration ${duration}s`);
-            transitionTo(mode, testPrayer, duration);
-        }
-    }, [transitionTo, audioSettings, settings]);
-
     // Helper to get prayer durations
-=======
-    // Helper to get prayer durations (moved before manualOverride)
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
     const getPrayerDurations = useCallback((prayerName: string): PrayerDurations => {
         const durations = settings[prayerName as keyof FullscreenSettings];
         if (durations && typeof durations === 'object' && 'adzanDuration' in durations) {
@@ -129,43 +91,49 @@ export function FullscreenSchedulerProvider({ children, settings }: FullscreenSc
         return { adzanDuration: 300, iqamahWaitDuration: 600, sholatDuration: 900 };
     }, [settings]);
 
-    // Manual override with default durations
+    // Manual override
     const manualOverride = useCallback((mode: FullScreenMode, prayerName?: string) => {
         if (mode === "None") {
             setState({ mode: "None", prayerName: null, startTime: null, duration: 0 });
             setTimeRemaining(0);
+            setTotalDuration(0);
         } else {
             // Use a default prayer name for testing if not provided
             const testPrayerName = prayerName || "Dzuhur";
             const durations = getPrayerDurations(testPrayerName);
 
             let duration = 0;
-            switch (mode) {
-                case "Adzan":
-                    duration = durations.adzanDuration;
-                    break;
-                case "IqamahWait":
-                    duration = durations.iqamahWaitDuration;
-                    break;
-                case "Sholat":
-                    duration = durations.sholatDuration;
-                    break;
-                case "PreKhutbah":
-                    duration = settings.preKhutbahDuration;
-                    break;
-                case "Khutbah":
-                    duration = settings.khutbahDuration;
-                    break;
-                case "ScreenSaver":
-                    duration = 3600; // 1 hour default for screensaver
-                    break;
-                default:
-                    duration = 300; // 5 minutes default
+
+            if (mode === "Adzan") {
+                // Use audio setting duration if available, else fallback to settings
+                duration = audioSettings[testPrayerName]?.adzanDuration || durations.adzanDuration;
+            } else {
+                switch (mode) {
+                    case "IqamahWait":
+                        duration = durations.iqamahWaitDuration;
+                        break;
+                    case "Sholat":
+                        duration = durations.sholatDuration;
+                        break;
+                    case "PreKhutbah":
+                        duration = settings.preKhutbahDuration || 900;
+                        break;
+                    case "Khutbah":
+                        duration = settings.khutbahDuration || 1800;
+                        break;
+                    case "ScreenSaver":
+                        duration = 3600; // 1 hour default
+                        break;
+                    default:
+                        duration = 300; // 5 minutes default
+                }
             }
 
+            console.log(`[Scheduler] Manual override: ${mode} with duration ${duration}s`);
             transitionTo(mode, testPrayerName, duration);
         }
-    }, [transitionTo, getPrayerDurations, settings]);
+    }, [transitionTo, getPrayerDurations, settings, audioSettings]);
+
 
     // Main scheduler effect - check for prayer time arrivals
     useEffect(() => {

@@ -11,9 +11,10 @@ interface MainContentProps {
     mosqueData?: MosqueData;
     slides?: Slide[];
     onOpenSettings?: () => void;
+    timezone?: string;
 }
 
-function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = [], onOpenSettings }: MainContentProps) {
+function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = [], onOpenSettings, timezone }: MainContentProps) {
     const isHorizontalBottom = layoutPosition === "Horizontal-Bottom";
 
     return (
@@ -33,7 +34,7 @@ function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = []
 
                         {/* Col 2 (30%) */}
                         <div className="grid grid-rows-2 h-full gap-6">
-                            <NextPrayer className="rounded-3xl" />
+                            <NextPrayer className="rounded-3xl" timezone={timezone} />
                             <Info className="rounded-3xl" />
                         </div>
                     </div>
@@ -45,7 +46,7 @@ function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = []
 
                         {/* Row 2b - 35% (Split into 2 cols) */}
                         <div className="grid grid-cols-2 h-full gap-6">
-                            <NextPrayer className="rounded-3xl" />
+                            <NextPrayer className="rounded-3xl" timezone={timezone} />
                             <Info className="rounded-3xl" />
                         </div>
                     </div>

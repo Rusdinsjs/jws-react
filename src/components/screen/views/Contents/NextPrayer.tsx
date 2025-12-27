@@ -1,10 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../../../../context/ThemeContext";
 import { usePrayerTimes } from "../../../../context/PrayerTimesContext";
-<<<<<<< HEAD
-=======
-import { useClockFont } from "../../../../context/ClockFontContext";
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
+
 
 interface ViewProps {
     className?: string;
@@ -13,7 +10,7 @@ interface ViewProps {
 
 function NextPrayer({ className = "", timezone = "Asia/Makassar" }: ViewProps) {
     const { theme } = useTheme();
-    const { clockFontFamily } = useClockFont();
+    // const { clockFontFamily } = useClockFont(); // Removed
     const { prayerTimes, nextPrayerIndex } = usePrayerTimes();
     const [timeLeft, setTimeLeft] = useState<string>("");
 
@@ -71,11 +68,7 @@ function NextPrayer({ className = "", timezone = "Asia/Makassar" }: ViewProps) {
         <div
             className={`flex flex-col items-center justify-center h-full w-full backdrop-blur-md p-6 relative overflow-hidden group ${className}`}
             style={{
-<<<<<<< HEAD
                 backgroundColor: theme.colors.glassBackground,
-=======
-                backgroundColor: theme.colors.glassBackground
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
             }}
         >
             {/* Animated Background Pulse */}
@@ -94,7 +87,7 @@ function NextPrayer({ className = "", timezone = "Asia/Makassar" }: ViewProps) {
                 <div
                     className="text-5xl lg:text-7xl font-bold tracking-wider tabular-nums flex items-center justify-center"
                     style={{
-                        fontFamily: clockFontFamily,
+
                         color: theme.colors.primary,
                         textShadow: `0 0 30px ${theme.colors.primary}60`,
                         fontFamily: "var(--font-family-time)"
@@ -103,7 +96,6 @@ function NextPrayer({ className = "", timezone = "Asia/Makassar" }: ViewProps) {
                     <span className="animate-pulse-slow">{timeLeft || "--:--:--"}</span>
                 </div>
 
-<<<<<<< HEAD
                 {/* Secondary Info (Actual Time) */}
                 <div
                     className="text-center mt-2 text-sm lg:text-base font-medium tracking-wide uppercase"
@@ -111,12 +103,6 @@ function NextPrayer({ className = "", timezone = "Asia/Makassar" }: ViewProps) {
                 >
                     {formattedTime}
                 </div>
-=======
-                {/* Prayer Time Badge */}
-                <span className="mt-4 bg-amber-500 text-black text-3xl font-bold px-6 py-2 rounded-full animate-pulse shadow-lg">
-                    {nextPrayer.time.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
-                </span>
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
             </div>
 
 

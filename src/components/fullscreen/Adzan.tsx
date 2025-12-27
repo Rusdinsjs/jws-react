@@ -4,6 +4,7 @@ import { useFullscreenScheduler } from "../../context/FullscreenSchedulerContext
 
 interface AdzanProps {
     bgImage?: string;
+    timeRemaining?: number; // Added for compatibility
 }
 
 function Adzan({ bgImage }: AdzanProps) {
@@ -11,17 +12,7 @@ function Adzan({ bgImage }: AdzanProps) {
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
 
-<<<<<<< HEAD
-interface AdzanProps {
-    timeRemaining?: number;
-}
 
-function Adzan({ timeRemaining = 300 }: AdzanProps) {
-    const minutes = Math.floor(timeRemaining / 60);
-    const seconds = timeRemaining % 60;
-
-=======
->>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
     return (
         <FullScreenLayout
             title="ADZAN"
