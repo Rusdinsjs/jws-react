@@ -46,7 +46,7 @@ function DigitalClock({ }: DigitalClockProps) {
 
     // Determine position classes based on layout
     // Always Top-Right as requested
-    const positionClasses = "absolute top-6 right-8 text-right z-50";
+    const positionClasses = "absolute top-10 right-8 text-right z-50";
 
     // Determine flex alignment for date container
     const dateContainerClasses = "mt-1 flex flex-col items-end";
