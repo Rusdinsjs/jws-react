@@ -7,9 +7,15 @@ import { LayoutPosition, FullScreenMode } from "../types/layout";
 import { MosqueData } from "../types/mosque";
 import { Slide } from "../types/slide";
 import { ThemeName, DEFAULT_THEME, getTheme } from "../types/theme";
+<<<<<<< HEAD
 import { FontThemeName, DEFAULT_FONT, TimeFontThemeName, DEFAULT_TIME_FONT } from "../types/fonts";
+=======
+import { FontThemeName, DEFAULT_FONT } from "../types/fonts";
+import { ClockFontName, DEFAULT_CLOCK_FONT } from "../types/clockFonts";
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
 import { PrayerAudioSettings } from "../types/audio";
 import { ThemeProvider } from "../context/ThemeContext";
+import { ClockFontProvider } from "../context/ClockFontContext";
 import { AudioProvider } from "../context/AudioContext";
 import { PrayerTimesProvider } from "../context/PrayerTimesContext";
 import { FullscreenSchedulerProvider, useFullscreenScheduler } from "../context/FullscreenSchedulerContext";
@@ -40,7 +46,11 @@ function MainScreen() {
     const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
     const [themeName, setThemeName] = useState<ThemeName>(DEFAULT_THEME);
     const [fontTheme, setFontTheme] = useState<FontThemeName>(DEFAULT_FONT);
+<<<<<<< HEAD
     const [timeFontTheme, setTimeFontTheme] = useState<TimeFontThemeName>(DEFAULT_TIME_FONT);
+=======
+    const [clockFont, setClockFont] = useState<ClockFontName>(DEFAULT_CLOCK_FONT);
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
     const [audioSettings, setAudioSettings] = useState<PrayerAudioSettings>({});
     const [prayerTimeOffsets, setPrayerTimeOffsets] = useState<Record<string, number>>({});
     const [locationSettings, setLocationSettings] = useState<LocationSettings>({
@@ -69,7 +79,11 @@ function MainScreen() {
                     setSlides(saved.slides);
                     if (saved.themeName) setThemeName(saved.themeName);
                     if (saved.fontTheme) setFontTheme(saved.fontTheme);
+<<<<<<< HEAD
                     if (saved.timeFontTheme) setTimeFontTheme(saved.timeFontTheme);
+=======
+                    if (saved.clockFont) setClockFont(saved.clockFont);
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
                     if (saved.audio) setAudioSettings(saved.audio);
                     if (saved.prayerTimeOffsets) setPrayerTimeOffsets(saved.prayerTimeOffsets);
                     if (saved.location) setLocationSettings(saved.location);
@@ -94,7 +108,11 @@ function MainScreen() {
                 slides,
                 themeName,
                 fontTheme,
+<<<<<<< HEAD
                 timeFontTheme,
+=======
+                clockFont,
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
                 audio: audioSettings,
                 prayerTimeOffsets: prayerTimeOffsets,
                 location: locationSettings,
@@ -102,7 +120,11 @@ function MainScreen() {
             })
                 .catch(err => console.error("Failed to save settings:", err));
         }
+<<<<<<< HEAD
     }, [layoutPosition, mosqueData, slides, themeName, fontTheme, timeFontTheme, audioSettings, prayerTimeOffsets, locationSettings, fullscreenSettings]);
+=======
+    }, [layoutPosition, mosqueData, slides, themeName, fontTheme, clockFont, audioSettings, prayerTimeOffsets, locationSettings, fullscreenSettings]);
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -145,6 +167,7 @@ function MainScreen() {
                 timezone={locationSettings.timezone}
                 ihtiati={locationSettings.ihtiati}
             >
+<<<<<<< HEAD
                 <AudioProvider initialSettings={audioSettings} onSettingsChange={setAudioSettings}>
                     <FullscreenSchedulerProvider settings={fullscreenSettings}>
                         <MainScreenContent
@@ -177,6 +200,40 @@ function MainScreen() {
                         />
                     </FullscreenSchedulerProvider>
                 </AudioProvider>
+=======
+                <FullscreenSchedulerProvider settings={fullscreenSettings}>
+                    <ClockFontProvider initialFont={clockFont} onFontChange={setClockFont}>
+                        <AudioProvider initialSettings={audioSettings} onSettingsChange={setAudioSettings}>
+                            <MainScreenContent
+                                theme={theme}
+                                isHorizontal={isHorizontal}
+                                layoutPosition={layoutPosition}
+                                setLayoutPosition={setLayoutPosition}
+                                fullscreenMode={fullscreenMode}
+                                setFullscreenMode={setFullscreenMode}
+                                mosqueData={mosqueData}
+                                setMosqueData={setMosqueData}
+                                slides={slides}
+                                setSlides={setSlides}
+                                themeName={themeName}
+                                setThemeName={setThemeName}
+                                fontTheme={fontTheme}
+                                setFontTheme={setFontTheme}
+                                audioSettings={audioSettings}
+                                setAudioSettings={setAudioSettings}
+                                prayerTimeOffsets={prayerTimeOffsets}
+                                setPrayerTimeOffsets={setPrayerTimeOffsets}
+                                locationSettings={locationSettings}
+                                setLocationSettings={setLocationSettings}
+                                fullscreenSettings={fullscreenSettings}
+                                setFullscreenSettings={setFullscreenSettings}
+                                isSettingsOpen={isSettingsOpen}
+                                setIsSettingsOpen={setIsSettingsOpen}
+                            />
+                        </AudioProvider>
+                    </ClockFontProvider>
+                </FullscreenSchedulerProvider>
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
             </PrayerTimesProvider>
         </ThemeProvider>
     );

@@ -11,30 +11,29 @@ interface MainContentProps {
     mosqueData?: MosqueData;
     slides?: Slide[];
     onOpenSettings?: () => void;
-    timezone?: string;
 }
 
-function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = [], onOpenSettings, timezone = "Asia/Makassar" }: MainContentProps) {
+function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = [], onOpenSettings }: MainContentProps) {
     const isHorizontalBottom = layoutPosition === "Horizontal-Bottom";
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-hidden gap-6">
+        <div className="flex-1 flex flex-col h-full overflow-hidden p-6 gap-6">
             {/* Header Area */}
             <div className="h-[18vh] shrink-0">
-                <Header className="" data={mosqueData} onOpenSettings={onOpenSettings} />
+                <Header className="rounded-3xl" data={mosqueData} onOpenSettings={onOpenSettings} />
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 min-h-0 pb-6">
+            <div className="flex-1 min-h-0">
                 {isHorizontalBottom ? (
                     /* Horizontal-Bottom Layout: Row 2 split into 2 Cols (70% - 30%) */
-                    <div className="grid grid-cols-[70%_30%] h-full">
+                    <div className="grid grid-cols-[70%_30%] h-full gap-6">
                         {/* Col 1 (70%) */}
                         <Slider className="rounded-3xl" slides={slides} />
 
                         {/* Col 2 (30%) */}
-                        <div className="grid grid-rows-2 h-full gap-6 px-3">
-                            <NextPrayer className="rounded-3xl" timezone={timezone} />
+                        <div className="grid grid-rows-2 h-full gap-6">
+                            <NextPrayer className="rounded-3xl" />
                             <Info className="rounded-3xl" />
                         </div>
                     </div>
@@ -46,7 +45,7 @@ function MainContent({ layoutPosition = "Vertical-Left", mosqueData, slides = []
 
                         {/* Row 2b - 35% (Split into 2 cols) */}
                         <div className="grid grid-cols-2 h-full gap-6">
-                            <NextPrayer className="rounded-3xl" timezone={timezone} />
+                            <NextPrayer className="rounded-3xl" />
                             <Info className="rounded-3xl" />
                         </div>
                     </div>

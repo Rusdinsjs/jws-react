@@ -3,7 +3,12 @@ import { LayoutPosition } from '../types/layout';
 import { MosqueData } from '../types/mosque';
 import { Slide } from '../types/slide';
 import { ThemeName } from '../types/theme';
+<<<<<<< HEAD
 import { FontThemeName, TimeFontThemeName } from '../types/fonts';
+=======
+import { FontThemeName } from '../types/fonts';
+import { ClockFontName } from '../types/clockFonts';
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
 import { PrayerAudioSettings } from '../types/audio';
 
 export interface LocationSettings {
@@ -66,7 +71,11 @@ export interface AppSettings {
     slides: Slide[];
     themeName: ThemeName;
     fontTheme: FontThemeName;
+<<<<<<< HEAD
     timeFontTheme?: TimeFontThemeName;
+=======
+    clockFont: ClockFontName; // Font for time display
+>>>>>>> f7022e27de8ffa6c3998f9b159eeef2cf087c7e0
     audio: PrayerAudioSettings;
     prayerTimeOffsets: Record<string, number>; // Minutes offset for each prayer
     location: LocationSettings;
